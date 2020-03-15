@@ -1,9 +1,9 @@
 package com.harper.spacewar.display
 
 import com.conceptic.firefly.app.screen.Key
-import com.harper.spacewar.display.listener.KeysListener
+import com.harper.spacewar.display.listener.KeyboardListener
 import com.harper.spacewar.display.listener.MouseListener
-import com.harper.spacewar.display.listener.ScreenListener
+import com.harper.spacewar.display.listener.DisplayListener
 import com.harper.spacewar.logging.Logger
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
 import org.lwjgl.glfw.GLFW.*
@@ -18,9 +18,9 @@ class Display(
     dpHeight: Int,
     private val title: String,
     private var fullScreen: Boolean,
-    private val screenListener: ScreenListener,
+    private val displayListener: DisplayListener,
     private val mouseListener: MouseListener,
-    private val keysListener: KeysListener
+    private val keyboardListener: KeyboardListener
 ) {
     private val logger = Logger.getLogger<Display>()
     private var window: Long = NULL
@@ -50,8 +50,8 @@ class Display(
         glfwSetKeyCallback(window) { _, keyCode, _, actionCode, _ ->
             val key = Key.fromGlfw(keyCode)
             when (actionCode) {
-                GLFW_PRESS -> keysListener.onPressed(key)
-                GLFW_RELEASE -> keysListener.onReleased(key)
+                GLFW_PRESS -> keyboardListener.onPressed(key)
+                GLFW_RELEASE -> keyboardListener.onReleased(key)
             }
         }
 
@@ -101,11 +101,11 @@ class Display(
         glfwShowWindow(window)
 
         GL.createCapabilities()
-        screenListener.onInitialized()
+        displayListener.onInitialized()
     }
 
     fun terminate() {
-        screenListener.onDestroyed()
+        displayListener.onDestroyed()
         checkWindowNotNull()
 
         glfwFreeCallbacks(window)
@@ -129,7 +129,7 @@ class Display(
     fun update() {
         checkWindowNotNull()
 
-        screenListener.onUpdated()
+        displayListener.onUpdated()
         glfwSwapBuffers(window)
         glfwPollEvents()
     }

@@ -40,9 +40,9 @@ object Log4JLogger : LoggerProvider {
 
             override fun info(message: String?) = logger.info(message)
 
-            override fun error(throwable: Throwable) = logger.error(throwable.message)
+            override fun error(throwable: Throwable) = logger.error(throwable)
 
-            override fun fatal(throwable: Throwable) = logger.fatal(throwable.message)
+            override fun fatal(throwable: Throwable) = logger.fatal(throwable)
         }
     }
 }

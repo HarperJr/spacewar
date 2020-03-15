@@ -1,6 +1,6 @@
 package com.harper.spacewar.display.listener
 
-interface ScreenListener {
+interface DisplayListener {
     fun onInitialized()
 
     fun onUpdated()

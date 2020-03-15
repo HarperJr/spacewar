@@ -7,9 +7,10 @@ class BufferBuilder(capacity: Int) {
     var vertexCount: Int = 0
         private set
 
-    private val rawByteBuffer: ByteBuffer = BufferUtils.createByteBuffer(capacity)
-    private val rawIntBuffer = rawByteBuffer.asIntBuffer()
-    private val rawFloatBuffer = rawByteBuffer.asFloatBuffer()
+    var drawMode: Int = 0
+        private set
+
+    val rawByteBuffer: ByteBuffer = BufferUtils.createByteBuffer(capacity)
 
     private val vertexFormatElement: VertexElement
         get() = vertexFormat.getElement(vertexFormatIndex)
@@ -21,13 +22,9 @@ class BufferBuilder(capacity: Int) {
     private var yOffset = 0f
     private var zOffset = 0f
 
-    fun tesselate(vertexFormat: VertexFormat, tess: BufferBuilder.() -> Unit) {
+    fun create(drawMode: Int, vertexFormat: VertexFormat) {
+        this.drawMode = drawMode
         this.vertexFormat = vertexFormat
-        this.vertexFormatIndex = 0
-
-        tess.invoke(this)
-
-        flush()
     }
 
     fun offset(x: Float, y: Float, z: Float) {
@@ -37,34 +34,37 @@ class BufferBuilder(capacity: Int) {
     }
 
     fun pos(x: Float, y: Float, z: Float): BufferBuilder = this.apply {
-        val index = vertexCount * vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
+        val index =
+            this.vertexCount * this.vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
         when (this.vertexFormatElement.format) {
             VertexElement.Format.FLOAT -> {
-                rawByteBuffer.putFloat(index + 0 * 4, x + xOffset)
-                rawByteBuffer.putFloat(index + 1 * 4, y + yOffset)
-                rawByteBuffer.putFloat(index + 2 * 4, z + zOffset)
+                rawByteBuffer.putFloat(index + 0, x + xOffset)
+                rawByteBuffer.putFloat(index + 4, y + yOffset)
+                rawByteBuffer.putFloat(index + 8, z + zOffset)
             }
             VertexElement.Format.UINT, VertexElement.Format.INT -> {
-                rawByteBuffer.putInt(index + 0 * 4, (x + xOffset).toInt())
-                rawByteBuffer.putInt(index + 1 * 4, (y + yOffset).toInt())
-                rawByteBuffer.putInt(index + 2 * 4, (z + zOffset).toInt())
+                rawByteBuffer.putInt(index + 0, (x + xOffset).toInt())
+                rawByteBuffer.putInt(index + 4, (y + yOffset).toInt())
+                rawByteBuffer.putInt(index + 8, (z + zOffset).toInt())
             }
             VertexElement.Format.UBYTE, VertexElement.Format.BYTE -> {
                 rawByteBuffer.put(index + 0, (x + xOffset).toByte())
                 rawByteBuffer.put(index + 1, (y + yOffset).toByte())
                 rawByteBuffer.put(index + 2, (z + zOffset).toByte())
             }
+            else -> return this
         }
 
         this.nextVertexFormatIndex()
     }
 
     fun tex(u: Float, v: Float): BufferBuilder = this.apply {
-        val index = vertexCount * vertexFormat.nextOffset + vertexFormat.getOffset(vertexFormatIndex)
+        val index =
+            this.vertexCount * this.vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
         when (vertexFormatElement.format) {
             VertexElement.Format.FLOAT -> {
                 rawByteBuffer.putFloat(index + 0, u)
-                rawByteBuffer.putFloat(index + 1, v)
+                rawByteBuffer.putFloat(index + 4, v)
             }
             else -> return this
         }
@@ -72,17 +72,18 @@ class BufferBuilder(capacity: Int) {
     }
 
     fun norm(x: Float, y: Float, z: Float): BufferBuilder = this.apply {
-        val index = vertexCount * vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
+        val index =
+            this.vertexCount * this.vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
         when (this.vertexFormatElement.format) {
             VertexElement.Format.FLOAT -> {
-                rawByteBuffer.putFloat(index + 0 * 4, x)
-                rawByteBuffer.putFloat(index + 1 * 4, y)
-                rawByteBuffer.putFloat(index + 2 * 4, z)
+                rawByteBuffer.putFloat(index + 0, x)
+                rawByteBuffer.putFloat(index + 4, y)
+                rawByteBuffer.putFloat(index + 8, z)
             }
             VertexElement.Format.UINT, VertexElement.Format.INT -> {
-                rawByteBuffer.putInt(index + 0 * 4, x.toInt())
-                rawByteBuffer.putInt(index + 1 * 4, y.toInt())
-                rawByteBuffer.putInt(index + 2 * 4, z.toInt())
+                rawByteBuffer.putInt(index + 0, x.toInt())
+                rawByteBuffer.putInt(index + 4, y.toInt())
+                rawByteBuffer.putInt(index + 8, z.toInt())
             }
             VertexElement.Format.UBYTE, VertexElement.Format.BYTE -> {
                 rawByteBuffer.put(index + 0, (x.toInt() * 127 and 255).toByte())
@@ -95,19 +96,19 @@ class BufferBuilder(capacity: Int) {
     }
 
     fun completeVertex() {
-        vertexCount++
+        this.vertexCount++
     }
 
-    fun flush() {
-
+    fun resetBuffer() {
+        this.rawByteBuffer.limit(this.rawByteBuffer.capacity())
+        this.rawByteBuffer.position(0)
+        this.vertexFormatIndex = 0
+        this.vertexCount = 0
     }
 
     private fun nextVertexFormatIndex() {
-        ++this.vertexFormatIndex
-        this.vertexFormatIndex %= this.vertexFormat.elementCount
-
-        if (this.vertexFormatElement.type === VertexElement.Type.PADDING) {
+        this.vertexFormatIndex = (this.vertexFormatIndex + 1) % this.vertexFormat.elementCount
+        if (this.vertexFormatElement.type == VertexElement.Type.PADDING)
             this.nextVertexFormatIndex()
-        }
     }
 }
