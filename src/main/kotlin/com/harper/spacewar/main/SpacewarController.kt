@@ -4,16 +4,23 @@ import com.conceptic.firefly.app.screen.Key
 import com.harper.spacewar.display.listener.DisplayListener
 import com.harper.spacewar.display.listener.KeyboardListener
 import com.harper.spacewar.display.listener.MouseListener
+import com.harper.spacewar.logging.Logger
 import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.font.FontDrawer
+import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.GuiContainer
 import com.harper.spacewar.main.gui.impl.GuiMainMenu
 import com.harper.spacewar.main.resolution.ScaledResolution
 
 class SpacewarController(private val spacewar: Spacewar) : DisplayListener, MouseListener, KeyboardListener {
+    private val logger = Logger.getLogger<SpacewarController>()
     private val fontDrawer: FontDrawer
         get() = spacewar.fontDrawer
-    private val guiContainer: GuiContainer = GuiMainMenu(spacewar)
+
+    private val textureManager: TextureManager
+        get() = spacewar.textureManager
+
+    private val guiContainer: GuiContainer = GuiMainMenu(this, fontDrawer, textureManager)
 
     private var scaledResolution: ScaledResolution = spacewar.scaledResolution
     private var isInMainMenu = true
@@ -51,21 +58,15 @@ class SpacewarController(private val spacewar: Spacewar) : DisplayListener, Mous
     }
 
     private fun renderOverlay() {
+        isInMainMenu = guiContainer is GuiMainMenu
+
         if (scaledResolution != spacewar.scaledResolution) {
             scaledResolution = spacewar.scaledResolution
             guiContainer.onResolutionChanged(scaledResolution)
         }
 
         updateOverlayCamera()
-
-        if (isInMainMenu)
-            guiContainer.drawGui()
-
-        drawVersionCode()
-    }
-
-    private fun drawVersionCode() {
-        fontDrawer.drawText("Spacewar v 0.1", 0f, 0f, 0x0a9a9aff, 1f)
+        guiContainer.drawGui()
     }
 
     private fun updateOverlayCamera() {
@@ -76,5 +77,17 @@ class SpacewarController(private val spacewar: Spacewar) : DisplayListener, Mous
         GlUtils.glMatrixMode(GlUtils.MODELVIEW)
         GlUtils.glLoadIdentity()
         GlUtils.glTranslatef(0f, 0f, -100f)
+    }
+
+    fun onEnterBtnClicked() {
+        logger.info("Enter game btn is clicked")
+    }
+
+    fun onLoadBtnClicked() {
+        logger.info("Load game btn is clicked")
+    }
+
+    fun onLeaveBtnClicked() {
+        logger.info("Leave game btn is clicked")
     }
 }

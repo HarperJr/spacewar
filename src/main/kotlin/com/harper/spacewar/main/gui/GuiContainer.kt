@@ -1,30 +1,31 @@
 package com.harper.spacewar.main.gui
 
 import com.harper.spacewar.display.listener.MouseListener
-import com.harper.spacewar.main.Spacewar
 import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.impl.GuiButton
+import com.harper.spacewar.main.gui.impl.GuiLabel
 import com.harper.spacewar.main.resolution.ScaledResolution
 
-abstract class GuiContainer(private val spacewar: Spacewar) : Gui(), MouseListener {
-    private val fontDrawer: FontDrawer
-        get() = spacewar.fontDrawer
-    private val textureManager: TextureManager
-        get() = spacewar.textureManager
-
+abstract class GuiContainer(private val fontDrawer: FontDrawer, private val textureManager: TextureManager) : Gui(),
+    MouseListener {
     private val buttons: MutableList<GuiButton> = mutableListOf()
+    private val labels: MutableList<GuiLabel> = mutableListOf()
 
     abstract fun inflateGui(scaledWidth: Float, scaledHeight: Float)
 
     fun drawGui() {
         for (btn in buttons)
             btn.drawButton(fontDrawer, textureManager)
+        for (label in labels)
+            label.drawLabel(fontDrawer)
     }
 
     fun onResolutionChanged(scaledResolution: ScaledResolution) {
         if (buttons.isNotEmpty())
             buttons.clear()
+        if (labels.isNotEmpty())
+            labels.clear()
         inflateGui(scaledResolution.scaledWidth, scaledResolution.scaledHeight)
     }
 
@@ -44,7 +45,9 @@ abstract class GuiContainer(private val spacewar: Spacewar) : Gui(), MouseListen
     }
 
     protected fun addGuiElement(guiElement: Gui) {
-        if (guiElement is GuiButton)
-            buttons.add(guiElement)
+        when (guiElement) {
+            is GuiButton -> buttons.add(guiElement)
+            is GuiLabel -> labels.add(guiElement)
+        }
     }
 }

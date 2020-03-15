@@ -8,7 +8,7 @@ import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.Gui
 import com.harper.spacewar.main.gui.listener.OnClickListener
 
-class GuiButton(var text: String, val xPos: Float, val yPos: Float, val width: Float, val height: Float) : Gui(),
+class GuiButton(val id: String, var text: String, val xPos: Float, val yPos: Float, val width: Float, val height: Float) : Gui(),
     MouseListener {
     var onClickListener: OnClickListener? = null
     var isHovered: Boolean = false
@@ -26,13 +26,14 @@ class GuiButton(var text: String, val xPos: Float, val yPos: Float, val width: F
         GlUtils.glBlendFuncDefault()
         GlUtils.glBindTexture(glTexture)
 
+        val buttonTexRect = texWidth / 4f
         drawTexturedRect(
             this.xPos,
             this.yPos,
             this.width / 2f,
             this.height,
             0f,
-            getHoveredState(this.isHovered) * 16f,
+            getHoveredState(this.isHovered) * buttonTexRect,
             texWidth.toFloat(),
             texHeight.toFloat()
         )
@@ -43,7 +44,7 @@ class GuiButton(var text: String, val xPos: Float, val yPos: Float, val width: F
             this.width / 2f,
             this.height,
             texWidth - this.width / 2f,
-            getHoveredState(this.isHovered) * 16f + 16f,
+            getHoveredState(this.isHovered) * buttonTexRect + buttonTexRect,
             texWidth.toFloat(),
             texHeight.toFloat()
         )

@@ -11,7 +11,6 @@ import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.resolution.ScaledResolutionProvider
-import kotlin.contracts.contract
 
 class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
     val textureManager = TextureManager()
@@ -22,15 +21,7 @@ class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
     /**
      * Main display
      */
-    private val display = Display(
-        DEF_DP_WIDTH,
-        DEF_DP_HEIGHT,
-        DP_TITLE,
-        false,
-        this,
-        this,
-        this
-    )
+    private val display = Display(DEF_DP_WIDTH, DEF_DP_HEIGHT, DP_TITLE, false, this, this, this)
 
     private val logger = Logger.getLogger<Spacewar>()
     private val scaledResoltionProvider = ScaledResolutionProvider()
@@ -91,21 +82,15 @@ class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
     }
 
     override fun onClicked(x: Float, y: Float) {
-        val mouseX = x * scaledResolution.scaledWidth / displayWidth
-        val mouseY = y * scaledResolution.scaledHeight / displayHeight
-        spacewarController.onClicked(mouseX, mouseY)
+        spacewarController.onClicked(getScaledX(x), getScaledY(y))
     }
 
     override fun onPressed(x: Float, y: Float) {
-        val mouseX = x * scaledResolution.scaledWidth / displayWidth
-        val mouseY = y * scaledResolution.scaledHeight / displayHeight
-        spacewarController.onPressed(mouseX, mouseY)
+        spacewarController.onPressed(getScaledX(x), getScaledY(y))
     }
 
     override fun onMoved(x: Float, y: Float) {
-        val mouseX = x * scaledResolution.scaledWidth / displayWidth
-        val mouseY = y * scaledResolution.scaledHeight / displayHeight
-        spacewarController.onMoved(mouseX, mouseY)
+        spacewarController.onMoved(getScaledX(x), getScaledY(y))
     }
 
     private fun updateCurrentResolution(width: Int, height: Int) {
@@ -113,6 +98,14 @@ class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
         this.displayHeight = height
         scaledResoltionProvider.resolve(this.displayWidth, this.displayHeight)
         GlUtils.glViewport(0, 0, this.displayWidth, this.displayHeight)
+    }
+
+    private fun getScaledX(x: Float): Float {
+        return x * scaledResolution.scaledWidth / displayWidth
+    }
+
+    private fun getScaledY(y: Float): Float {
+        return y * scaledResolution.scaledHeight / displayHeight
     }
 
     /**
