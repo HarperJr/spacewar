@@ -4,6 +4,7 @@ import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.buffer.BufferBuilder
 import com.harper.spacewar.main.gl.buffer.VertexFormat
 import com.harper.spacewar.main.gl.tessellator.Tessellator
+import com.harper.spacewar.main.gl.texture.Texture
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.utils.FileProvider
 import javax.imageio.ImageIO
@@ -13,21 +14,16 @@ class FontDrawer(private val textureManager: TextureManager) {
     private val charWidthList = IntArray(CHARS_COUNT)
     private val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!.,%-+/&()[] "
 
-    private var fontWidth: Int = 0
-    private var fontHeight: Int = 0
-    private var fontTextureRes: String = ""
-    private var isFontLoaded: Boolean = false
+    private var fontTexture: Texture? = null
 
     fun initializeFont(fontTextureRes: String) {
-        if (isFontLoaded)
+        if (fontTexture != null)
             return
-        this.fontTextureRes = fontTextureRes
-        textureManager.bind(fontTextureRes)
+        this.fontTexture = textureManager.provideTexture(fontTextureRes)
 
         val fontImage = ImageIO.read(fileProvider.provideFile(fontTextureRes))
-
-        this.fontWidth = fontImage.width
-        this.fontHeight = fontImage.height
+        val fontWidth = fontImage.width
+        val fontHeight = fontImage.height
         val fontPixels = IntArray(fontWidth * fontHeight)
         fontImage.getRGB(0, 0, fontWidth, fontHeight, fontPixels, 0, fontWidth)
 
@@ -67,14 +63,16 @@ class FontDrawer(private val textureManager: TextureManager) {
     }
 
     fun drawText(text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
+        if (fontTexture == null)
+            return
+
         GlUtils.glEnable(GlUtils.TEXTURE_2D)
         GlUtils.glEnable(GlUtils.BLEND)
         GlUtils.glBlendFuncDefault()
 
         GlUtils.glColor(color)
 
-        GlUtils.glPopMatrix()
-        textureManager.bind(fontTextureRes)
+        GlUtils.glBindTexture(fontTexture!!.glTexture)
         val tessellator = Tessellator.instance
         tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX) {
             var charXOffset = x
@@ -93,7 +91,6 @@ class FontDrawer(private val textureManager: TextureManager) {
                 charXOffset += charWidthList[charIndex] * scaleFactor
             }
         }
-        GlUtils.glPushMatrix()
 
         GlUtils.glDisable(GlUtils.BLEND)
         GlUtils.glDisable(GlUtils.TEXTURE_2D)
@@ -113,6 +110,7 @@ class FontDrawer(private val textureManager: TextureManager) {
         val charHeightScaled = charHeight * scaleFactor
         val charOffsetX = charIndex % 16 * 8f
         val charOffsetY = charIndex / 16 * 8f
+        val (fontWidth, fontHeight) = fontTexture!!
         with(bufferBuilder) {
             // top left
             pos(x, y + charHeightScaled, 0f)

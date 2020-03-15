@@ -5,27 +5,21 @@ import com.harper.spacewar.utils.FileProvider
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import java.awt.image.BufferedImage
-import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 
 
 class TextureManager {
     private val fileProvider = FileProvider.get()
-    private val textures = mutableMapOf<String, Int>()
+    private val textures = mutableMapOf<String, Texture>()
 
-    fun bind(textureName: String) {
-        val texture = textures[textureName] ?: let {
-            val newTexture = GlUtils.glGenTextures()
-                .also { tex -> textures[textureName] = tex }
-            createTexture(
-                textureImage = ImageIO.read(fileProvider.provideFile(textureName)),
-                texture = newTexture
-            )
-        }
-        GlUtils.glBindTexture(texture)
+    fun provideTexture(textureName: String): Texture {
+        return textures[textureName] ?: createTexture(
+            textureImage = ImageIO.read(fileProvider.provideFile(textureName)),
+            texture = GlUtils.glGenTextures()
+        )
     }
 
-    private fun createTexture(textureImage: BufferedImage, texture: Int): Int {
+    private fun createTexture(textureImage: BufferedImage, texture: Int): Texture {
         val textureBuffer = textureImage.let { image ->
             val pixelsArray = with(IntArray(size = image.width * image.height)) {
                 image.getRGB(0, 0, image.width, image.height, this, 0, image.width)
@@ -42,13 +36,8 @@ class TextureManager {
             pixelsByteBuffer
         }
 
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture)
-
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST)
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST)
-
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP)
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP)
+        GlUtils.glBindTexture(texture)
+        GlUtils.glTexParametriDefault()
 
         GL11.glTexImage2D(
             GL11.GL_TEXTURE_2D,
@@ -62,10 +51,10 @@ class TextureManager {
             textureBuffer
         )
 
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0)
-
+        GlUtils.glBindTexture(0)
         textureBuffer.clear()
-        return texture
+
+        return Texture(textureImage.width, textureImage.height, texture)
     }
 
     companion object {

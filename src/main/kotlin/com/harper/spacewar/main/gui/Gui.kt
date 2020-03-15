@@ -36,7 +36,7 @@ open class Gui {
         tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX) {
             pos(x, y + height, 0f).tex(texX / texWidth, (texY + height) / texHeight).completeVertex()
             pos(x + width, y + height, 0f).tex((texX + width) / texWidth, (texY + height) / texHeight).completeVertex()
-            pos(x + width, y, 0f).tex((texX + width) / texHeight, texY / texHeight).completeVertex()
+            pos(x + width, y, 0f).tex((texX + width) / texWidth, texY / texHeight).completeVertex()
             pos(x, y, 0f).tex(texX / texWidth, texY / texHeight).completeVertex()
         }
 

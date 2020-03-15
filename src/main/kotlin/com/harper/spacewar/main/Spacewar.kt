@@ -63,6 +63,7 @@ class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
     override fun onInitialized() {
         GlUtils.glClearColor(0xdfdfdfff)
         GlUtils.glEnable(GlUtils.DEPTH_TEST)
+        GlUtils.glDepthFunc(GlUtils.DEPTH_ALWAYS)
         GlUtils.glEnableDepthMask()
 
         spacewarController.onInitialized()

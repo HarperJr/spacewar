@@ -5,34 +5,9 @@ import com.harper.spacewar.main.gui.GuiContainer
 
 class GuiMainMenu(spacewar: Spacewar) : GuiContainer(spacewar) {
     override fun inflateGui(scaledWidth: Float, scaledHeight: Float) {
-        addGuiElement(
-            GuiButton(
-                "Enter the game",
-                scaledWidth / 2f - 80f,
-                scaledHeight / 2f - 100f,
-                160f,
-                20f
-            )
-        )
-
-        addGuiElement(
-            GuiButton(
-                "Enter the game",
-                scaledWidth / 2f - 80f,
-                scaledHeight / 2f - 140f,
-                160f,
-                20f
-            )
-        )
-
-        addGuiElement(
-            GuiButton(
-                "Enter the game",
-                scaledWidth / 2f - 80f,
-                scaledHeight / 2f - 180f,
-                160f,
-                20f
-            )
-        )
+        val offsetRight = scaledWidth - scaledWidth / 4f - 60f
+        addGuiElement(GuiButton("Enter the game", offsetRight, scaledHeight / 2f - 32f, 140f, 16f))
+        addGuiElement(GuiButton("Load the game", offsetRight, scaledHeight / 2f, 140f, 16f))
+        addGuiElement(GuiButton("Leave the game", offsetRight, scaledHeight / 2f + 32f, 140f, 16f))
     }
 }

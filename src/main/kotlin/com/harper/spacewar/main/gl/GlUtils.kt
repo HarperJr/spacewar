@@ -17,6 +17,8 @@ object GlUtils {
 
     const val BLEND = GL11.GL_BLEND
 
+    const val DEPTH_ALWAYS = GL11.GL_ALWAYS
+
     fun glTranslatef(x: Float, y: Float, z: Float) {
         GL11.glTranslatef(x, y, z)
     }
@@ -91,6 +93,14 @@ object GlUtils {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture)
     }
 
+    fun glTexParametriDefault() {
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST)
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST)
+
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP)
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP)
+    }
+
     fun glPopMatrix() {
         GL11.glPopMatrix()
     }
@@ -137,5 +147,9 @@ object GlUtils {
 
     fun glEnableDepthMask() {
         GL11.glDepthMask(true)
+    }
+
+    fun glDepthFunc(func: Int) {
+        GL11.glDepthFunc(func)
     }
 }
