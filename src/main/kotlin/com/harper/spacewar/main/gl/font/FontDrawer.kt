@@ -69,8 +69,11 @@ class FontDrawer(private val textureManager: TextureManager) {
     fun drawText(text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
         GlUtils.glEnable(GlUtils.TEXTURE_2D)
         GlUtils.glEnable(GlUtils.BLEND)
+        GlUtils.glBlendFuncDefault()
 
-        GlUtils.popMatrix()
+        GlUtils.glColor(color)
+
+        GlUtils.glPopMatrix()
         textureManager.bind(fontTextureRes)
         val tessellator = Tessellator.instance
         tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX) {
@@ -90,10 +93,17 @@ class FontDrawer(private val textureManager: TextureManager) {
                 charXOffset += charWidthList[charIndex] * scaleFactor
             }
         }
-        GlUtils.pushMatrix()
+        GlUtils.glPushMatrix()
 
         GlUtils.glDisable(GlUtils.BLEND)
         GlUtils.glDisable(GlUtils.TEXTURE_2D)
+    }
+
+    fun drawCenteredText(text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
+        var textWidth = 0f
+        for (char in text)
+            textWidth += charWidthList[chars.indexOf(char)] * scaleFactor
+        drawText(text, x - textWidth / 2f, y - 4f * scaleFactor, color, scaleFactor)
     }
 
     private fun drawChar(bufferBuilder: BufferBuilder, x: Float, y: Float, scaleFactor: Float, charIndex: Int) {

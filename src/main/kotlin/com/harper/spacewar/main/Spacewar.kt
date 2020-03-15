@@ -11,7 +11,7 @@ import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.resolution.ScaledResolutionProvider
-import org.lwjgl.opengl.GLUtil
+import kotlin.contracts.contract
 
 class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
     val textureManager = TextureManager()
@@ -64,45 +64,54 @@ class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
         GlUtils.glClearColor(0xdfdfdfff)
         GlUtils.glEnable(GlUtils.DEPTH_TEST)
         GlUtils.glEnableDepthMask()
+
+        spacewarController.onInitialized()
     }
 
     override fun onUpdated() {
         GlUtils.glClear(GlUtils.COLOR_DEPTH_BUFFER_BIT)
 
-        if (display.width != displayWidth || display.height != displayHeight) {
-            this.displayWidth = display.width
-            this.displayHeight = display.height
+        if (display.width != displayWidth || display.height != displayHeight)
+            updateCurrentResolution(display.width, display.height)
 
-            scaledResoltionProvider.resolve(this.displayWidth, this.displayHeight)
-
-            GlUtils.glViewport(0, 0, this.displayWidth, this.displayHeight)
-        }
-
-        spacewarController.update()
+        spacewarController.onUpdated()
     }
 
     override fun onDestroyed() {
-
+        spacewarController.onDestroyed()
     }
 
     override fun onPressed(key: Key) {
-
+        spacewarController.onPressed(key)
     }
 
     override fun onReleased(key: Key) {
-
+        spacewarController.onReleased(key)
     }
 
     override fun onClicked(x: Float, y: Float) {
-
+        val mouseX = x * scaledResolution.scaledWidth / displayWidth
+        val mouseY = y * scaledResolution.scaledHeight / displayHeight
+        spacewarController.onClicked(mouseX, mouseY)
     }
 
     override fun onPressed(x: Float, y: Float) {
-
+        val mouseX = x * scaledResolution.scaledWidth / displayWidth
+        val mouseY = y * scaledResolution.scaledHeight / displayHeight
+        spacewarController.onPressed(mouseX, mouseY)
     }
 
     override fun onMoved(x: Float, y: Float) {
+        val mouseX = x * scaledResolution.scaledWidth / displayWidth
+        val mouseY = y * scaledResolution.scaledHeight / displayHeight
+        spacewarController.onMoved(mouseX, mouseY)
+    }
 
+    private fun updateCurrentResolution(width: Int, height: Int) {
+        this.displayWidth = width
+        this.displayHeight = height
+        scaledResoltionProvider.resolve(this.displayWidth, this.displayHeight)
+        GlUtils.glViewport(0, 0, this.displayWidth, this.displayHeight)
     }
 
     /**

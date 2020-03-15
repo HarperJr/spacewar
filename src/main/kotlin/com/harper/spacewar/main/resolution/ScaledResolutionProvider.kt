@@ -5,6 +5,6 @@ class ScaledResolutionProvider {
         private set
 
     fun resolve(width: Int, height: Int) {
-        resolution = resolution.copy(scaledWidth = width * 1f, scaledHeight = height * 1f)
+        resolution = resolution.copy(scaledWidth = width / 2f, scaledHeight = height / 2f)
     }
 }

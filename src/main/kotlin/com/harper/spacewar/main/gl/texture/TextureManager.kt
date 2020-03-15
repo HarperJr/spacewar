@@ -33,10 +33,10 @@ class TextureManager {
             val pixelsByteBuffer = BufferUtils.createByteBuffer(pixelsArray.size * BYTES_PER_PIXEL_RGBA)
             pixelsArray.forEachIndexed { i, pixel ->
                 with(pixelsByteBuffer) {
-                    put(i * BYTES_PER_PIXEL_RGBA + 0, (pixel shl 0 and 255).toByte())
-                    put(i * BYTES_PER_PIXEL_RGBA + 1, (pixel shl 8 and 255).toByte())
-                    put(i * BYTES_PER_PIXEL_RGBA + 2, (pixel shl 16 and 255).toByte())
-                    put(i * BYTES_PER_PIXEL_RGBA + 3, (pixel shl 24 and 255).toByte())
+                    put(i * BYTES_PER_PIXEL_RGBA + 0, (pixel shr 0 and 255).toByte())
+                    put(i * BYTES_PER_PIXEL_RGBA + 1, (pixel shr 8 and 255).toByte())
+                    put(i * BYTES_PER_PIXEL_RGBA + 2, (pixel shr 16 and 255).toByte())
+                    put(i * BYTES_PER_PIXEL_RGBA + 3, (pixel shr 24 and 255).toByte())
                 }
             }
             pixelsByteBuffer

@@ -91,11 +91,11 @@ object GlUtils {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture)
     }
 
-    fun popMatrix() {
+    fun glPopMatrix() {
         GL11.glPopMatrix()
     }
 
-    fun pushMatrix() {
+    fun glPushMatrix() {
         GL11.glPushMatrix()
     }
 

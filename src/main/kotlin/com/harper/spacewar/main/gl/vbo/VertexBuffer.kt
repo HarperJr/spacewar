@@ -14,4 +14,9 @@ class VertexBuffer(private val vertexFormat: VertexFormat) {
     fun bufferData() {
 
     }
+
+    fun destroy() {
+        if (glBuffer != -1)
+            GlUtils.glDeleteBuffers(glBuffer)
+    }
 }
