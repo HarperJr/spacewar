@@ -69,16 +69,6 @@ class SpacewarController(private val spacewar: Spacewar) : DisplayListener, Mous
         guiContainer.drawGui()
     }
 
-    private fun updateOverlayCamera() {
-        val (scaledWidth, scaledHeight) = scaledResolution
-        GlUtils.glMatrixMode(GlUtils.PROJECTION)
-        GlUtils.glLoadIdentity()
-        GlUtils.glOrtho(0.0, scaledWidth.toDouble(), scaledHeight.toDouble(), 0.0, 0.1, 1000.0)
-        GlUtils.glMatrixMode(GlUtils.MODELVIEW)
-        GlUtils.glLoadIdentity()
-        GlUtils.glTranslatef(0f, 0f, -100f)
-    }
-
     fun onEnterBtnClicked() {
         logger.info("Enter game btn is clicked")
     }
@@ -89,5 +79,15 @@ class SpacewarController(private val spacewar: Spacewar) : DisplayListener, Mous
 
     fun onLeaveBtnClicked() {
         logger.info("Leave game btn is clicked")
+    }
+
+    private fun updateOverlayCamera() {
+        val (scaledWidth, scaledHeight) = scaledResolution
+        GlUtils.glMatrixMode(GlUtils.PROJECTION)
+        GlUtils.glLoadIdentity()
+        GlUtils.glOrtho(0.0, scaledWidth.toDouble(), scaledHeight.toDouble(), 0.0, 0.1, 1000.0)
+        GlUtils.glMatrixMode(GlUtils.MODELVIEW)
+        GlUtils.glLoadIdentity()
+        GlUtils.glTranslatef(0f, 0f, -100f)
     }
 }

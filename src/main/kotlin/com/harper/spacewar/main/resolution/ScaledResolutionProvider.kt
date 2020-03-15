@@ -5,6 +5,20 @@ class ScaledResolutionProvider {
         private set
 
     fun resolve(width: Int, height: Int) {
-        resolution = resolution.copy(scaledWidth = width / 2f, scaledHeight = height / 2f)
+        var scaleFactor = 3
+
+        var i = 0
+        if (i == 0)
+            i = 1000
+
+        while (scaleFactor < i && width / (scaleFactor + 1) >= 320 && height / (scaleFactor + 1) >= 240)
+            ++scaleFactor
+        if (scaleFactor % 2 != 0 && scaleFactor != 1)
+            --scaleFactor
+        val scaledWidthD = width.toDouble() / scaleFactor.toDouble()
+        val scaledHeightD = height.toDouble() / scaleFactor.toDouble()
+
+        resolution = resolution.copy(scaledWidth = Math.ceil(scaledWidthD).toFloat(), scaledHeight = Math.ceil(scaledHeightD).toFloat())
+
     }
 }

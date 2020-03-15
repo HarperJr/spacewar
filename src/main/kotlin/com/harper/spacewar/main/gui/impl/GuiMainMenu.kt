@@ -12,7 +12,7 @@ class GuiMainMenu(private val controller: SpacewarController, fontDrawer: FontDr
     private val logger = Logger.getLogger<GuiMainMenu>()
 
     override fun inflateGui(scaledWidth: Float, scaledHeight: Float) {
-        val offsetRight = scaledWidth - scaledWidth / 4f - 60f
+        val offsetRight = scaledWidth - 160f
         addGuiElement(
             GuiButton(ENTER_BTN_ID, "Enter the game", offsetRight, scaledHeight / 2f - 32f, 140f, 16f)
                 .also { it.onClickListener = onClickListener }

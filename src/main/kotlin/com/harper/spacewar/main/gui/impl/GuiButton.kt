@@ -24,7 +24,10 @@ class GuiButton(val id: String, var text: String, val xPos: Float, val yPos: Flo
         GlUtils.glPopMatrix()
         GlUtils.glEnable(GlUtils.BLEND)
         GlUtils.glBlendFuncDefault()
+        GlUtils.glBlendSeparateDefault()
         GlUtils.glBindTexture(glTexture)
+
+        GlUtils.glColor(0xffffffff)
 
         val buttonTexRect = texWidth / 4f
         drawTexturedRect(
