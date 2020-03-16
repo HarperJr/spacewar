@@ -1,13 +1,13 @@
 package com.harper.spacewar.main.gui.impl
 
 import com.harper.spacewar.logging.Logger
-import com.harper.spacewar.main.SpacewarController
 import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.GuiContainer
 import com.harper.spacewar.main.gui.listener.OnClickListener
+import com.harper.spacewar.main.scene.SceneMainMenu
 
-class GuiMainMenu(private val controller: SpacewarController, fontDrawer: FontDrawer, textureManager: TextureManager) :
+class GuiMainMenu(private val scene: SceneMainMenu, fontDrawer: FontDrawer, textureManager: TextureManager) :
     GuiContainer(fontDrawer, textureManager) {
     private val logger = Logger.getLogger<GuiMainMenu>()
 
@@ -33,9 +33,9 @@ class GuiMainMenu(private val controller: SpacewarController, fontDrawer: FontDr
     private val onClickListener = object : OnClickListener {
         override fun onClicked(button: GuiButton, x: Float, y: Float) {
             when (button.id) {
-                ENTER_BTN_ID -> controller.onEnterBtnClicked()
-                LOAD_BTN_ID -> controller.onLoadBtnClicked()
-                LEAVE_BTN_ID -> controller.onLeaveBtnClicked()
+                ENTER_BTN_ID -> scene.onEnterBtnClicked()
+                LOAD_BTN_ID -> scene.onLoadBtnClicked()
+                LEAVE_BTN_ID -> scene.onLeaveBtnClicked()
             }
         }
     }

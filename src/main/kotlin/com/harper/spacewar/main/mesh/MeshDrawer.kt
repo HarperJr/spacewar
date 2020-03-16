@@ -7,14 +7,15 @@ import com.harper.spacewar.main.gl.buffer.VertexFormat
 import com.harper.spacewar.main.gl.vbo.VertexBuffer
 import org.lwjgl.BufferUtils
 
-class MeshDrawer(private val vertexFormat: VertexFormat) {
+class MeshDrawer(private val mesh: Mesh, private val vertexFormat: VertexFormat) {
     private val vertexBuffers: VertexBuffer = VertexBuffer()
     private var indexBuffer = BufferUtils.createIntBuffer(0x10000)
     private var isBufferInflated = false
 
-    fun draw(drawMode: Int, mesh: Mesh) {
+    fun draw(drawMode: Int) {
         if (!isBufferInflated)
-            inflateMeshBuffer(mesh)
+            inflateMeshBuffer()
+
         vertexBuffers.bindBuffer {
             val elementsCount = vertexFormat.elementCount
             for (index in 0 until elementsCount) {
@@ -43,7 +44,9 @@ class MeshDrawer(private val vertexFormat: VertexFormat) {
                             vertexFormat.getOffset(index).toLong()
                         )
                     }
-                    else -> { /** Do nothing, just pass **/ }
+                    else -> {
+                        /** Do nothing, just pass **/
+                    }
                 }
             }
 
@@ -51,7 +54,7 @@ class MeshDrawer(private val vertexFormat: VertexFormat) {
         }
     }
 
-    private fun inflateMeshBuffer(mesh: Mesh) {
+    private fun inflateMeshBuffer() {
         val meshData = mesh.data
         val bufferBuilder = BufferBuilder(0x100000)
         bufferBuilder.create(GlUtils.DRAW_MODE_TRIANGLES, vertexFormat)

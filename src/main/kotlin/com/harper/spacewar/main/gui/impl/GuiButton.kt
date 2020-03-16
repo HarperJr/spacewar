@@ -8,8 +8,7 @@ import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.Gui
 import com.harper.spacewar.main.gui.listener.OnClickListener
 
-class GuiButton(val id: String, var text: String, val xPos: Float, val yPos: Float, val width: Float, val height: Float) : Gui(),
-    MouseListener {
+class GuiButton(val id: String, var text: String, val xPos: Float, val yPos: Float, val width: Float, val height: Float) : Gui() {
     var onClickListener: OnClickListener? = null
     var isHovered: Boolean = false
         private set
@@ -69,16 +68,12 @@ class GuiButton(val id: String, var text: String, val xPos: Float, val yPos: Flo
         return if (isHovered) 2 else 0
     }
 
-    override fun onClicked(x: Float, y: Float) {
+    fun onClicked(x: Float, y: Float) {
         if (isHovered)
             onClickListener?.onClicked(this, x, y)
     }
 
-    override fun onPressed(x: Float, y: Float) {
-        // No implementation here
-    }
-
-    override fun onMoved(x: Float, y: Float) {
+    fun onMoved(x: Float, y: Float) {
         isHovered = x >= this.xPos && x <= this.xPos + this.width && y >= this.yPos && y <= this.yPos + this.height
     }
 }

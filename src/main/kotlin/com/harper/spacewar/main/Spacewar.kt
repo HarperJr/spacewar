@@ -1,10 +1,9 @@
 package com.harper.spacewar.main
 
-import com.conceptic.firefly.app.screen.Key
+import com.harper.spacewar.controls.Keyboard
+import com.harper.spacewar.controls.Mouse
 import com.harper.spacewar.display.Display
 import com.harper.spacewar.display.listener.DisplayListener
-import com.harper.spacewar.display.listener.KeyboardListener
-import com.harper.spacewar.display.listener.MouseListener
 import com.harper.spacewar.logging.Logger
 import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.font.FontDrawer
@@ -12,7 +11,7 @@ import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.resolution.ScaledResolutionProvider
 
-class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
+class Spacewar : Runnable, DisplayListener {
     val textureManager = TextureManager()
     val fontDrawer = FontDrawer(textureManager)
     val scaledResolution: ScaledResolution
@@ -21,7 +20,7 @@ class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
     /**
      * Main display
      */
-    private val display = Display(DEF_DP_WIDTH, DEF_DP_HEIGHT, DP_TITLE, false, this, this, this)
+    private val display = Display(DEF_DP_WIDTH, DEF_DP_HEIGHT, DP_TITLE, false, this, Mouse, Keyboard)
 
     private val logger = Logger.getLogger<Spacewar>()
     private val scaledResoltionProvider = ScaledResolutionProvider()
@@ -30,8 +29,10 @@ class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
     private var isRunning = false
     private var isInitializing = true
 
-    private var displayWidth: Int = 0
-    private var displayHeight: Int = 0
+    var displayWidth: Int = 0
+        private set
+    var displayHeight: Int = 0
+        private set
 
     override fun run() {
         try {
@@ -73,39 +74,11 @@ class Spacewar : Runnable, DisplayListener, KeyboardListener, MouseListener {
         spacewarController.onDestroyed()
     }
 
-    override fun onPressed(key: Key) {
-        spacewarController.onPressed(key)
-    }
-
-    override fun onReleased(key: Key) {
-        spacewarController.onReleased(key)
-    }
-
-    override fun onClicked(x: Float, y: Float) {
-        spacewarController.onClicked(getScaledX(x), getScaledY(y))
-    }
-
-    override fun onPressed(x: Float, y: Float) {
-        spacewarController.onPressed(getScaledX(x), getScaledY(y))
-    }
-
-    override fun onMoved(x: Float, y: Float) {
-        spacewarController.onMoved(getScaledX(x), getScaledY(y))
-    }
-
     private fun updateCurrentResolution(width: Int, height: Int) {
         this.displayWidth = width
         this.displayHeight = height
         scaledResoltionProvider.resolve(this.displayWidth, this.displayHeight)
         GlUtils.glViewport(0, 0, this.displayWidth, this.displayHeight)
-    }
-
-    private fun getScaledX(x: Float): Float {
-        return x * scaledResolution.scaledWidth / displayWidth
-    }
-
-    private fun getScaledY(y: Float): Float {
-        return y * scaledResolution.scaledHeight / displayHeight
     }
 
     /**

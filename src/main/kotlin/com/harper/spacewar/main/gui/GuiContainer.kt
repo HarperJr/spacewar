@@ -1,14 +1,12 @@
 package com.harper.spacewar.main.gui
 
-import com.harper.spacewar.display.listener.MouseListener
 import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.impl.GuiButton
 import com.harper.spacewar.main.gui.impl.GuiLabel
 import com.harper.spacewar.main.resolution.ScaledResolution
 
-abstract class GuiContainer(private val fontDrawer: FontDrawer, private val textureManager: TextureManager) : Gui(),
-    MouseListener {
+abstract class GuiContainer(private val fontDrawer: FontDrawer, private val textureManager: TextureManager) : Gui() {
     private val buttons: MutableList<GuiButton> = mutableListOf()
     private val labels: MutableList<GuiLabel> = mutableListOf()
 
@@ -29,17 +27,12 @@ abstract class GuiContainer(private val fontDrawer: FontDrawer, private val text
         inflateGui(scaledResolution.scaledWidth, scaledResolution.scaledHeight)
     }
 
-    override fun onClicked(x: Float, y: Float) {
+    fun onClicked(x: Float, y: Float) {
         for (btn in buttons)
             btn.onClicked(x, y)
     }
 
-    override fun onPressed(x: Float, y: Float) {
-        for (btn in buttons)
-            btn.onPressed(x, y)
-    }
-
-    override fun onMoved(x: Float, y: Float) {
+    fun onMoved(x: Float, y: Float) {
         for (btn in buttons)
             btn.onMoved(x, y)
     }
