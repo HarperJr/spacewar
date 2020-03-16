@@ -58,7 +58,7 @@ class FontDrawer(private val textureManager: TextureManager) {
             }
 
             ++minCharWidth
-            this.charWidthList[i] = (0.5f + (minCharWidth.toFloat() * charMinOffset).toDouble()).toInt() + 1
+            this.charWidthList[i] = (0.5f + (minCharWidth.toFloat() * charMinOffset).toDouble()).toInt()
         }
     }
 
