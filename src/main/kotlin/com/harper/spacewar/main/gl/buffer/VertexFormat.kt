@@ -44,7 +44,6 @@ class VertexFormat(vararg vertexElements: VertexElement) {
             when (element.type) {
                 VertexElement.Type.TEX_2F -> texCoordOffset = nextOffset
                 VertexElement.Type.NORMAL_3B -> normalOffset = nextOffset
-                VertexElement.Type.ELEMENT_1I -> elementOffset = nextOffset
                 else -> { /** Do nothing, just skip **/ }
             }
             elements.add(element)
@@ -68,12 +67,6 @@ class VertexFormat(vararg vertexElements: VertexElement) {
             VertexElement.POSITION_3F,
             VertexElement.TEX_2F,
             VertexElement.NORMAL_3B
-        )
-        val OPAQUE_MODEL_FACED = VertexFormat(
-            VertexElement.POSITION_3F,
-            VertexElement.TEX_2F,
-            VertexElement.NORMAL_3B,
-            VertexElement.ELEMENT_1I
         )
     }
 }

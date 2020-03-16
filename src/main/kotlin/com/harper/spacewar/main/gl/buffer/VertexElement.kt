@@ -15,7 +15,6 @@ class VertexElement(val format: Format, val type: Type, val count: Int) {
         val TEX_2F = VertexElement(Format.FLOAT, Type.TEX_2F, 2)
         val NORMAL_3B = VertexElement(Format.BYTE, Type.NORMAL_3B, 3)
         val COLOR_4B = VertexElement(Format.UBYTE, Type.COLOR_4B, 4)
-        val ELEMENT_1I = VertexElement(Format.UINT, Type.ELEMENT_1I, 1)
     }
 
     enum class Format(val usage: Int, val glPointer: Int) {
@@ -32,7 +31,6 @@ class VertexElement(val format: Format, val type: Type, val count: Int) {
         TEX_2F,
         NORMAL_3B,
         COLOR_4B,
-        ELEMENT_1I,
         PADDING
     }
 }

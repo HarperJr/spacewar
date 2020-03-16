@@ -10,12 +10,14 @@ class BufferBuilder(capacity: Int) {
     var drawMode: Int = 0
         private set
 
+    var vertexFormat: VertexFormat = VertexFormat.POSITION_TEX
+        private set
+
     val rawByteBuffer: ByteBuffer = BufferUtils.createByteBuffer(capacity)
 
     private val vertexFormatElement: VertexElement
         get() = vertexFormat.getElement(vertexFormatIndex)
 
-    private var vertexFormat: VertexFormat = VertexFormat.POSITION_TEX
     private var vertexFormatIndex = 0
 
     private var xOffset = 0f

@@ -3,6 +3,7 @@ package com.harper.spacewar.main.gl
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 import java.nio.ByteBuffer
+import java.nio.IntBuffer
 
 object GlUtils {
     const val PROJECTION = GL11.GL_PROJECTION
@@ -16,8 +17,10 @@ object GlUtils {
     const val DEPTH_TEST = GL11.GL_DEPTH_TEST
 
     const val BLEND = GL11.GL_BLEND
-
     const val DEPTH_ALWAYS = GL11.GL_ALWAYS
+
+    const val STATIC_DRAW = GL15.GL_STATIC_DRAW
+    const val ARRAY_BUFFER = GL15.GL_ARRAY_BUFFER
 
     fun glTranslatef(x: Float, y: Float, z: Float) {
         GL11.glTranslatef(x, y, z)
@@ -57,8 +60,8 @@ object GlUtils {
         GL15.glDrawArrays(mode, first, count)
     }
 
-    fun glDrawElements(mode: Int, count: Int, type: Int, pointer: Long) {
-        GL15.glDrawElements(mode, count, type, pointer)
+    fun glDrawElements(mode: Int, pointer: IntBuffer) {
+        GL15.glDrawElements(mode, pointer)
     }
 
     fun glEnableClientState(state: Int) {
@@ -73,7 +76,15 @@ object GlUtils {
         GL15.glVertexPointer(size, type, stride, pointer)
     }
 
+    fun glVertexPointer(size: Int, type: Int, stride: Int, pointer: Long) {
+        GL15.glVertexPointer(size, type, stride, pointer)
+    }
+
     fun glTexCoordPointer(size: Int, type: Int, stride: Int, pointer: ByteBuffer) {
+        GL15.glTexCoordPointer(size, type, stride, pointer)
+    }
+
+    fun glTexCoordPointer(size: Int, type: Int, stride: Int, pointer: Long) {
         GL15.glTexCoordPointer(size, type, stride, pointer)
     }
 
@@ -81,7 +92,15 @@ object GlUtils {
         GL15.glColorPointer(size, type, stride, pointer)
     }
 
+    fun glColorPointer(size: Int, type: Int, stride: Int, pointer: Long) {
+        GL15.glColorPointer(size, type, stride, pointer)
+    }
+
     fun glNormalPointer(type: Int, stride: Int, pointer: ByteBuffer) {
+        GL15.glNormalPointer(type, stride, pointer)
+    }
+
+    fun glNormalPointer(type: Int, stride: Int, pointer: Long) {
         GL15.glNormalPointer(type, stride, pointer)
     }
 
@@ -151,5 +170,13 @@ object GlUtils {
 
     fun glDepthFunc(func: Int) {
         GL11.glDepthFunc(func)
+    }
+
+    fun glBufferData(buffer: ByteBuffer, mode: Int) {
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, mode)
+    }
+
+    fun glBindBuffer(target: Int, buffer: Int) {
+        GL15.glBindBuffer(target, buffer)
     }
 }

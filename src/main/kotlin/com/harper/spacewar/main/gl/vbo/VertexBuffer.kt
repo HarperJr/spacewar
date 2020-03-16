@@ -1,22 +1,32 @@
 package com.harper.spacewar.main.gl.vbo
 
 import com.harper.spacewar.main.gl.GlUtils
+import com.harper.spacewar.main.gl.buffer.BufferBuilder
 import com.harper.spacewar.main.gl.buffer.VertexFormat
 
-class VertexBuffer(private val vertexFormat: VertexFormat) {
-    private var glBuffer = -1
+class VertexBuffer() {
+    private var glVertexBuffer = GlUtils.glGenBuffers()
+    private var vertexFormat = VertexFormat.POSITION
 
-    fun create() {
-        if (glBuffer == -1)
-            glBuffer = GlUtils.glGenBuffers()
+    fun bufferData(bufferBuilder: BufferBuilder) {
+        this.vertexFormat = bufferBuilder.vertexFormat
+        bindBuffer {
+            GlUtils.glBufferData(bufferBuilder.rawByteBuffer, GlUtils.STATIC_DRAW)
+        }
     }
 
-    fun bufferData() {
-
+    fun bindBuffer(binding: () -> Unit) {
+        if (glVertexBuffer == -1)
+            IllegalStateException("Unable to bind buffer, cause it's not allocated")
+        GlUtils.glBindBuffer(GlUtils.ARRAY_BUFFER, glVertexBuffer)
+        binding.invoke()
+        GlUtils.glBindBuffer(GlUtils.ARRAY_BUFFER, 0)
     }
 
-    fun destroy() {
-        if (glBuffer != -1)
-            GlUtils.glDeleteBuffers(glBuffer)
+    fun deleteBuffers() {
+        if (glVertexBuffer > 0) {
+            GlUtils.glDeleteBuffers(glVertexBuffer)
+            glVertexBuffer = -1
+        }
     }
 }
