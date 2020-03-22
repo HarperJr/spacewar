@@ -4,7 +4,7 @@ import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.buffer.BufferBuilder
 import com.harper.spacewar.main.gl.buffer.VertexFormat
 
-class VertexBuffer() {
+class VertexBuffer {
     private var glVertexBuffer = GlUtils.glGenBuffers()
     private var vertexFormat = VertexFormat.POSITION
 

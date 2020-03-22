@@ -1,8 +1,10 @@
 package com.harper.spacewar.main.gui.impl
 
+import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gui.Gui
 import com.harper.spacewar.main.gui.listener.OnAnimateLabelListener
+import org.lwjgl.opengl.GLUtil
 
 class GuiLabel(
     private val centered: Boolean = false,
@@ -16,6 +18,7 @@ class GuiLabel(
 
     fun drawLabel(fontDrawer: FontDrawer) {
         onAnimateLabelListener?.onAnimate(this)
+
         if (centered) {
             drawCenteredText(fontDrawer, text, x, y, color, scale)
         } else {

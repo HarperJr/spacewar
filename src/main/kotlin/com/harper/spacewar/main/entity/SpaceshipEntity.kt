@@ -1,7 +1,7 @@
 package com.harper.spacewar.main.entity
 
-import com.harper.spacewar.main.scene.Scene
+import com.harper.spacewar.main.scene.renderer.RenderManager
 
-class SpaceshipEntity(scene: Scene) : Entity(scene) {
+class SpaceshipEntity(renderManager: RenderManager) : Entity(renderManager) {
 
 }

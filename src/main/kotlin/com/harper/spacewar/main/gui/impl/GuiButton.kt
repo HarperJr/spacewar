@@ -22,6 +22,7 @@ class GuiButton(val id: String, var text: String, val xPos: Float, val yPos: Flo
 
         GlUtils.glPopMatrix()
         GlUtils.glEnable(GlUtils.BLEND)
+        GlUtils.glEnable(GlUtils.TEXTURE_2D)
         GlUtils.glBlendFuncDefault()
         GlUtils.glBlendSeparateDefault()
         GlUtils.glBindTexture(glTexture)
@@ -51,16 +52,18 @@ class GuiButton(val id: String, var text: String, val xPos: Float, val yPos: Flo
             texHeight.toFloat()
         )
 
+        val textColor = if (this.isHovered) 0xefefaaff else 0xffffffff
         drawCenteredText(
             fontDrawer,
             this.text,
             this.xPos + this.width / 2f,
             this.yPos + this.height / 2f,
-            0xffffffff,
+            textColor,
             1f
         )
 
         GlUtils.glDisable(GlUtils.BLEND)
+        GlUtils.glDisable(GlUtils.TEXTURE_2D)
         GlUtils.glPushMatrix()
     }
 

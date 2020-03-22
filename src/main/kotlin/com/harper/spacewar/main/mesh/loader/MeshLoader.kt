@@ -1,15 +1,17 @@
 package com.harper.spacewar.main.mesh.loader
 
-import com.harper.spacewar.main.mesh.Mesh
-import com.harper.spacewar.main.mesh.MeshData
-import com.harper.spacewar.main.mesh.material.Material
 import com.harper.spacewar.main.gl.texture.Texture
 import com.harper.spacewar.main.gl.texture.TextureManager
+import com.harper.spacewar.main.mesh.Mesh
+import com.harper.spacewar.main.mesh.MeshData
+import com.harper.spacewar.main.mesh.material.Color
+import com.harper.spacewar.main.mesh.material.Material
 import com.harper.spacewar.utils.FileProvider
 import org.joml.Vector4f
 import org.lwjgl.BufferUtils
 import org.lwjgl.assimp.*
 import org.lwjgl.system.MemoryUtil
+import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 
@@ -19,7 +21,7 @@ import java.nio.IntBuffer
 class MeshLoader(private val textureManager: TextureManager) {
     private val fileProvider: FileProvider = FileProvider.get()
 
-    fun loadMeshes(meshFileName: String): List<Mesh> {
+    fun load(meshFileName: String): List<Mesh> {
         val meshContent = fileProvider.provideFileContent(MESHES_DIR + meshFileName)
         val buffer = allocateMemory(meshContent)
         val importScene = Assimp.aiImportFileFromMemory(
@@ -28,124 +30,181 @@ class MeshLoader(private val textureManager: TextureManager) {
             BufferUtils.createByteBuffer(1)
         )
 
-        return importScene?.let { scene ->
-            loadMeshesFromScene(scene, loadMaterials(scene))
-        }
-            ?: throw IllegalArgumentException("Unable to create mesh $meshFileName in cause: ${Assimp.aiGetErrorString()}")
+        return if (importScene != null) {
+            loadMeshesFromScene(importScene)
+        } else throw IllegalArgumentException("Unable to create mesh $meshFileName in cause: ${Assimp.aiGetErrorString()}")
     }
 
     private fun allocateMemory(bytes: ByteArray): ByteBuffer {
         return MemoryUtil.memCalloc(bytes.size).apply {
             put(bytes)
-            flip()
+            position(0)
         }
     }
 
-    private fun loadMeshesFromScene(scene: AIScene, materials: List<Material>): List<Mesh> {
-        val numMeshes = scene.mNumMeshes()
-        val meshesBuffer = scene.mMeshes()
-        return if (meshesBuffer != null) {
-            (0 until numMeshes).map { index ->
-                val mesh = AIMesh.create(meshesBuffer.get(index))
-                val numVertices = mesh.mNumVertices()
-                val name = mesh.mName().dataString()
+    private fun loadMeshesFromScene(scene: AIScene): List<Mesh> {
+        val materials = loadMaterials(scene)
 
-                val vertices: FloatArray = mesh.mVertices().let { vertex ->
-                    val verticesBuffer = FloatArray(size = numVertices * 3)
-                    vertex.forEachIndexed { i, vec ->
-                        verticesBuffer[i * 3 + 0] = vec.x()
-                        verticesBuffer[i * 3 + 1] = vec.y()
-                        verticesBuffer[i * 3 + 2] = vec.z()
-                    }
-                    verticesBuffer
-                }
+        val aiMeshes = scene.mMeshes()
+        return if (aiMeshes != null) {
+            val meshes = mutableListOf<Mesh>()
+            while (aiMeshes.hasRemaining()) {
+                val aiMesh = AIMesh.create(aiMeshes.get())
+                val material = materials[aiMesh.mMaterialIndex()]
 
-                val texCoords: FloatArray = mesh.mTextureCoords(0)?.let { texCoords ->
-                    val texCoordinatesBuffer = FloatArray(size = numVertices * 2)
-                    texCoords.forEachIndexed { i, vec ->
-                        texCoordinatesBuffer[i * 2 + 0] = vec.x()
-                        texCoordinatesBuffer[i * 2 + 1] = vec.y()
-                    }
-                    texCoordinatesBuffer
-                } ?: floatArrayOf()
+                val vertices = unpackVertices(aiMesh)
+                val texCoords = unpackTexCoords(aiMesh, material.textures.size)
+                val normals = unpackNormals(aiMesh)
+                val indexes = unpackIndexes(aiMesh)
 
-                val normals: FloatArray = mesh.mNormals()?.let { norms ->
-                    val texCoordinatesBuffer = FloatArray(size = numVertices * 3)
-                    norms.forEachIndexed { i, vec ->
-                        texCoordinatesBuffer[i * 3 + 0] = vec.x()
-                        texCoordinatesBuffer[i * 3 + 1] = vec.y()
-                        texCoordinatesBuffer[i * 3 + 2] = vec.z()
-                    }
-                    texCoordinatesBuffer
-                } ?: floatArrayOf()
-
-                val elements: IntArray = mesh.mFaces().let { faces ->
-                    val indicesList = mutableListOf<Int>()
-                    for (face in faces) {
-                        val faceIndices = face.mIndices()
-                        while (faceIndices.hasRemaining())
-                            indicesList.add(faceIndices.get())
-                    }
-                    indicesList.toIntArray()
-                }
-
-                val material = materials[mesh.mMaterialIndex()]
-                val meshData = MeshData(vertices, texCoords, normals, elements)
-                return@map Mesh(name, meshData, material)
+                val meshName = aiMesh.mName().dataString()
+                meshes.add(
+                    Mesh(
+                        meshName,
+                        MeshData(aiMesh.mNumVertices(), vertices, texCoords, normals, indexes),
+                        material
+                    )
+                )
             }
+            meshes
         } else emptyList()
+    }
+
+    private fun unpackIndexes(aiMesh: AIMesh): IntBuffer {
+        val faceBuffer = aiMesh.mFaces()
+        val indexes = mutableListOf<Int>()
+
+        while (faceBuffer.hasRemaining()) {
+            val face = faceBuffer.get()
+            val indexBuffer = face.mIndices()
+            while (indexBuffer.hasRemaining())
+                indexes.add(indexBuffer.get())
+        }
+
+        val indexBuffer = BufferUtils.createIntBuffer(indexes.size)
+        indexBuffer.put(indexes.toIntArray())
+        indexBuffer.position(0)
+
+        return indexBuffer
+    }
+
+    private fun unpackVertices(aiMesh: AIMesh): FloatArray {
+        val vertexBuffer = aiMesh.mVertices()
+        val vertexCount = vertexBuffer.count()
+        val vertices = FloatArray(vertexCount * 3)
+
+        var i = 0
+        while (vertexBuffer.hasRemaining()) {
+            val vertex = vertexBuffer.get()
+            vertices[i * 3 + 0] = vertex.x()
+            vertices[i * 3 + 1] = vertex.y()
+            vertices[i * 3 + 2] = vertex.z()
+            i++
+        }
+
+        return vertices
+    }
+
+    private fun unpackTexCoords(aiMesh: AIMesh, textureCount: Int): List<FloatArray> {
+        val texCoordList = mutableListOf<FloatArray>()
+        for (i in 0 until textureCount) {
+            val texCoordBuffer = aiMesh.mTextureCoords(i)
+            if (texCoordBuffer != null) {
+                val texCoordCount = texCoordBuffer.count()
+                val texCoords = FloatArray(texCoordCount * 2)
+
+                var i = 0
+                while (texCoordBuffer.hasRemaining()) {
+                    val texCoord = texCoordBuffer.get()
+                    texCoords[i * 2 + 0] = texCoord.x()
+                    texCoords[i * 2 + 0] = texCoord.y()
+                    i++
+                }
+            }
+        }
+
+        return texCoordList
+    }
+
+    private fun unpackNormals(aiMesh: AIMesh): FloatArray {
+        val normalBuffer = aiMesh.mNormals() ?: return FloatArray(0)
+        val normalCount = normalBuffer.count()
+        val normals = FloatArray(normalCount * 3)
+
+        var i = 0
+        while (normalBuffer.hasRemaining()) {
+            val normal = normalBuffer.get()
+            normals[i * 3 + 0] = normal.x()
+            normals[i * 3 + 1] = normal.y()
+            normals[i * 3 + 2] = normal.z()
+            i++
+        }
+
+        return normals
     }
 
     private fun loadMaterials(scene: AIScene): List<Material> {
         val numMaterials = scene.mNumMaterials()
         val materialsPointerBuffer = scene.mMaterials()
         return if (materialsPointerBuffer != null) {
-            (0 until numMaterials).map { index ->
-                val rawMaterial = AIMaterial.create(materialsPointerBuffer.get(index))
+            (0 until numMaterials).map { i ->
+                val aiMaterial = AIMaterial.create(materialsPointerBuffer.get(i))
+                val aiName = AIString.calloc()
+                Assimp.aiGetMaterialString(aiMaterial, Assimp.AI_MATKEY_NAME, Assimp.AI_AISTRING, 0, aiName)
 
-                val namePointer = AIString.calloc()
-                Assimp.aiGetMaterialString(rawMaterial, Assimp.AI_MATKEY_NAME, Assimp.AI_AISTRING, 0, namePointer)
+                val colors = mutableListOf<Color>()
+                for (cComponent in ColorComponent.values()) {
+                    val color = getColor(aiMaterial, cComponent.type, cComponent.aiType)
+                    if (color != null)
+                        colors.add(color)
+                }
 
-                val name = namePointer.dataString()
-                val ambient = getColor(rawMaterial, Assimp.AI_MATKEY_COLOR_AMBIENT)
-                val diffuse = getColor(rawMaterial, Assimp.AI_MATKEY_COLOR_DIFFUSE)
-                val specular = getColor(rawMaterial, Assimp.AI_MATKEY_COLOR_SPECULAR)
-                val emissive = getColor(rawMaterial, Assimp.AI_MATKEY_COLOR_EMISSIVE)
-                val texAmbient = getTexture(rawMaterial, Assimp.aiTextureType_AMBIENT)
-                val texDiffuse = getTexture(rawMaterial, Assimp.aiTextureType_DIFFUSE)
-                val texSpecular = getTexture(rawMaterial, Assimp.aiTextureType_SPECULAR)
+                val textures = mutableListOf<Texture>()
+                for (tComponent in TextureComponent.values()) {
+                    val texture = getTexture(aiMaterial, tComponent.type, tComponent.aiType)
+                    if (texture != null)
+                        textures.add(texture)
+                }
 
-                Material(
-                    name = name,
-                    ambient = ambient,
-                    diffuse = diffuse,
-                    emissive = emissive,
-                    specular = specular,
-                    texAmbient = texAmbient,
-                    texDiffuse = texDiffuse,
-                    texSpecular = texSpecular
-                )
+                Material(aiName.dataString(), colors, textures)
             }
         } else emptyList()
     }
 
-    private fun getColor(material: AIMaterial, type: String): Vector4f = with(AIColor4D.create()) {
-        val result = Assimp.aiGetMaterialColor(material, type, Assimp.aiTextureType_NONE, 0, this)
-        if (result == 0) Vector4f(this.r(), this.g(), this.b(), this.a()) else Vector4f()
+    private fun getColor(material: AIMaterial, type: Color.Type, aiType: String): Color? {
+        return with(AIColor4D.create()) {
+            val result = Assimp.aiGetMaterialColor(material, aiType, Assimp.aiTextureType_NONE, 0, this)
+            if (result == 0) {
+                Color(type, Vector4f(this.r(), this.g(), this.b(), this.a()))
+            } else null
+        }
     }
 
-    private fun getTexture(material: AIMaterial, type: Int): Texture {
-        val textureFileName = with(AIString.calloc()) {
-            Assimp.aiGetMaterialTexture(material, type, 0, this, null as IntBuffer?, null, null, null, null, null)
+    private fun getTexture(material: AIMaterial, type: Texture.Type, aiType: Int): Texture? {
+        val aiTexPath = with(AIString.calloc()) {
+            Assimp.aiGetMaterialTexture(material, aiType, 0, this, null as IntBuffer?, null, null, null, null, null)
             this.dataString()
         }
 
-        return if (textureFileName.isNotEmpty()) {
-            textureManager.provideTexture(textureFileName)
-        } else throw IllegalStateException("Unable to find texture by path $textureFileName")
+        val texture = textureManager.provideTexture(aiTexPath, type)
+        return if (texture != textureManager.undefinedTexture) texture else null
     }
 
     companion object {
         private const val MESHES_DIR = "meshes/"
+    }
+
+    enum class ColorComponent(val type: Color.Type, val aiType: String) {
+        AMBIENT(Color.Type.AMBIENT, Assimp.AI_MATKEY_COLOR_AMBIENT),
+        DIFFUSE(Color.Type.DIFFUSE, Assimp.AI_MATKEY_COLOR_DIFFUSE),
+        SPECULAR(Color.Type.SPECULAR, Assimp.AI_MATKEY_COLOR_SPECULAR),
+        EMISSIVE(Color.Type.EMISSIVE, Assimp.AI_MATKEY_COLOR_EMISSIVE)
+    }
+
+    enum class TextureComponent(val type: Texture.Type, val aiType: Int) {
+        AMBIENT(Texture.Type.AMBIENT, Assimp.aiTextureType_AMBIENT),
+        DIFFUSE(Texture.Type.DIFFUSE, Assimp.aiTextureType_DIFFUSE),
+        SPECULAR(Texture.Type.SPECULAR, Assimp.aiTextureType_SPECULAR),
+        NORMAL(Texture.Type.NORMAL, Assimp.aiTextureType_NORMALS)
     }
 }

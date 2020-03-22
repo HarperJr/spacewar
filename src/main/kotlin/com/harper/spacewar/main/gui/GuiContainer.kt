@@ -1,5 +1,6 @@
 package com.harper.spacewar.main.gui
 
+import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.impl.GuiButton
@@ -12,18 +13,22 @@ abstract class GuiContainer(private val fontDrawer: FontDrawer, private val text
 
     abstract fun inflateGui(scaledWidth: Float, scaledHeight: Float)
 
-    fun drawGui() {
+    fun render(time: Float) {
+        GlUtils.glEnable(GlUtils.DEPTH_TEST)
+        GlUtils.glDepthFunc(GlUtils.DEPTH_ALWAYS)
+        GlUtils.glEnableDepthMask()
+
         for (btn in buttons)
             btn.drawButton(fontDrawer, textureManager)
         for (label in labels)
             label.drawLabel(fontDrawer)
+
+        GlUtils.glDisable(GlUtils.DEPTH_TEST)
     }
 
     fun onResolutionChanged(scaledResolution: ScaledResolution) {
-        if (buttons.isNotEmpty())
-            buttons.clear()
-        if (labels.isNotEmpty())
-            labels.clear()
+        buttons.clear()
+        labels.clear()
         inflateGui(scaledResolution.scaledWidth, scaledResolution.scaledHeight)
     }
 

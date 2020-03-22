@@ -42,7 +42,7 @@ class GuiMainMenu(private val scene: SceneMainMenu, fontDrawer: FontDrawer, text
 
     companion object {
         private const val ENTER_BTN_ID = "btn.enter"
-        private const val LOAD_BTN_ID = "btn.load"
+        private const val LOAD_BTN_ID = "btn.asyncLoad"
         private const val LEAVE_BTN_ID = "btn.leave"
     }
 }

@@ -2,6 +2,8 @@ package com.harper.spacewar.main.gl.buffer
 
 import org.lwjgl.BufferUtils
 import java.nio.ByteBuffer
+import java.nio.IntBuffer
+import kotlin.math.ceil
 
 class BufferBuilder(capacity: Int) {
     var vertexCount: Int = 0
@@ -13,7 +15,11 @@ class BufferBuilder(capacity: Int) {
     var vertexFormat: VertexFormat = VertexFormat.POSITION_TEX
         private set
 
-    val rawByteBuffer: ByteBuffer = BufferUtils.createByteBuffer(capacity)
+    var rawByteBuffer: ByteBuffer = BufferUtils.createByteBuffer(capacity)
+        private set
+
+    var rawIntBuffer: IntBuffer = rawByteBuffer.asIntBuffer()
+        private set
 
     private val vertexFormatElement: VertexElement
         get() = vertexFormat.getElement(vertexFormatIndex)
@@ -88,9 +94,9 @@ class BufferBuilder(capacity: Int) {
                 rawByteBuffer.putInt(index + 8, z.toInt())
             }
             VertexElement.Format.UBYTE, VertexElement.Format.BYTE -> {
-                rawByteBuffer.put(index + 0, (x.toInt() * 127 and 255).toByte())
-                rawByteBuffer.put(index + 1, (y.toInt() * 127 and 255).toByte())
-                rawByteBuffer.put(index + 2, (z.toInt() * 127 and 255).toByte())
+                rawByteBuffer.put(index + 0, (ceil(x * 255).toInt() and 255).toByte())
+                rawByteBuffer.put(index + 1, (ceil(y * 255).toInt() and 255).toByte())
+                rawByteBuffer.put(index + 2, (ceil(z * 255).toInt() and 255).toByte())
             }
             else -> return this
         }
@@ -99,6 +105,7 @@ class BufferBuilder(capacity: Int) {
 
     fun completeVertex() {
         this.vertexCount++
+        this.growBuffer(this.vertexFormat.nextOffset)
     }
 
     fun resetBuffer() {
@@ -108,9 +115,41 @@ class BufferBuilder(capacity: Int) {
         this.vertexCount = 0
     }
 
+    private fun growBuffer(nextOffset: Int) {
+        if (roundUp(nextOffset, 4) / 4 > this.rawIntBuffer.remaining() ||
+            this.vertexCount * this.vertexFormat.nextOffset + nextOffset > this.rawByteBuffer.capacity()) {
+            val currentBufferCap = this.rawByteBuffer.capacity()
+            val growBufferCap = currentBufferCap + roundUp(nextOffset, 2097152)
+            val intBufferPos = this.rawIntBuffer.position()
+            val byteBuffer = BufferUtils.createByteBuffer(growBufferCap)
+            this.rawByteBuffer.position(0)
+            byteBuffer.put(this.rawByteBuffer)
+            byteBuffer.rewind()
+            this.rawByteBuffer = byteBuffer
+            this.rawIntBuffer = this.rawByteBuffer.asIntBuffer()
+            this.rawIntBuffer.position(intBufferPos)
+        }
+    }
+
     private fun nextVertexFormatIndex() {
         this.vertexFormatIndex = (this.vertexFormatIndex + 1) % this.vertexFormat.elementCount
         if (this.vertexFormatElement.type == VertexElement.Type.PADDING)
             this.nextVertexFormatIndex()
+    }
+
+    private fun roundUp(number: Int, interval: Int): Int {
+        var intValue = interval
+        return if (intValue == 0) {
+            0
+        } else if (number == 0) {
+            intValue
+        } else {
+            if (number < 0) {
+                intValue *= -1
+            }
+
+            val i = number % intValue
+            if (i == 0) number else number + intValue - i
+        }
     }
 }

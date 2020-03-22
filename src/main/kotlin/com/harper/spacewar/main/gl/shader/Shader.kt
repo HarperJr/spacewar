@@ -38,7 +38,7 @@ abstract class Shader(private val shaderProgram: Int) {
         bindUniforms()
     }
 
-    fun matrices(modelMatrix: Matrix4f, viewMatrix: Matrix4f, projMatrix: Matrix4f) {
+    fun bindMatrices(modelMatrix: Matrix4f, viewMatrix: Matrix4f, projMatrix: Matrix4f) {
         uniformMat4(U_MODEL_MATRIX, modelMatrix.get(matrixFloatBuffer))
         uniformMat4(U_VIEW_MATRIX, viewMatrix.get(matrixFloatBuffer))
         uniformMat4(U_PROJECTION_MATRIX, projMatrix.get(matrixFloatBuffer))

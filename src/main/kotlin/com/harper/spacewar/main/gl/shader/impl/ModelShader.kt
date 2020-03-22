@@ -1,18 +1,15 @@
 package com.harper.spacewar.main.gl.shader.impl
 
 import com.harper.spacewar.main.gl.shader.Shader
+import org.joml.Matrix4f
 
-class MeshShader(shaderProgram: Int) : Shader(shaderProgram) {
+class ModelShader(shaderProgram: Int) : Shader(shaderProgram) {
     override val uniforms: List<String> = emptyList()
 
     override fun bindAttributes() {
         attributeLocation(A_POSITION, "position")
         attributeLocation(A_TEX_COORD, "texCoord")
         attributeLocation(A_NORMALS, "normal")
-    }
-
-    fun bindLights() {
-
     }
 
     companion object {

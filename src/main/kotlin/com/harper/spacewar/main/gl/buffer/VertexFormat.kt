@@ -12,9 +12,6 @@ class VertexFormat(vararg vertexElements: VertexElement) {
     var normalOffset: Int = -1
         private set
 
-    var elementOffset: Int = -1
-        private set
-
     var nextOffset = 0
         private set
 
@@ -63,9 +60,15 @@ class VertexFormat(vararg vertexElements: VertexElement) {
             VertexElement.POSITION_3F,
             VertexElement.TEX_2F
         )
+
         val OPAQUE_MODEL = VertexFormat(
             VertexElement.POSITION_3F,
             VertexElement.TEX_2F,
+            VertexElement.NORMAL_3B
+        )
+
+        val OPAQUE_MODEL_UNTEXTURED = VertexFormat(
+            VertexElement.POSITION_3F,
             VertexElement.NORMAL_3B
         )
     }

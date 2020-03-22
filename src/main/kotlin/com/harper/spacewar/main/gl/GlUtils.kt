@@ -1,5 +1,6 @@
 package com.harper.spacewar.main.gl
 
+import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 import java.nio.ByteBuffer
@@ -18,9 +19,13 @@ object GlUtils {
 
     const val BLEND = GL11.GL_BLEND
     const val DEPTH_ALWAYS = GL11.GL_ALWAYS
+    const val DEPTH_LESS = GL11.GL_LESS
 
     const val STATIC_DRAW = GL15.GL_STATIC_DRAW
     const val ARRAY_BUFFER = GL15.GL_ARRAY_BUFFER
+
+    private val matrix4 = Matrix4f()
+    private val matrix4Array = FloatArray(16)
 
     fun glTranslatef(x: Float, y: Float, z: Float) {
         GL11.glTranslatef(x, y, z)
@@ -178,5 +183,13 @@ object GlUtils {
 
     fun glBindBuffer(target: Int, buffer: Int) {
         GL15.glBindBuffer(target, buffer)
+    }
+
+    fun glPerspective(fov: Float, aspect: Float, near: Float, far: Float) {
+        GL11.glLoadMatrixf(matrix4.setPerspective(fov, aspect, near, far).get(matrix4Array))
+    }
+
+    fun glLight() {
+
     }
 }

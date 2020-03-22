@@ -5,6 +5,7 @@ import com.harper.spacewar.utils.FileProvider
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import java.awt.image.BufferedImage
+import java.awt.image.IndexColorModel
 import javax.imageio.ImageIO
 
 
@@ -12,14 +13,34 @@ class TextureManager {
     private val fileProvider = FileProvider.get()
     private val textures = mutableMapOf<String, Texture>()
 
-    fun provideTexture(textureName: String): Texture {
-        return textures[textureName] ?: createTexture(
-            textureImage = ImageIO.read(fileProvider.provideFile(textureName)),
-            texture = GlUtils.glGenTextures()
-        )
+    var undefinedTexture: Texture? = null
+        private set
+
+    fun provideTexture(textureName: String, type: Texture.Type = Texture.Type.AMBIENT): Texture {
+        return textures[textureName] ?: kotlin.runCatching {
+            createTexture(
+                textureImage = ImageIO.read(fileProvider.provideFile(textureName)),
+                texture = GlUtils.glGenTextures(),
+                type = type
+            )
+        }.getOrDefault(createUndefinedTexture())
     }
 
-    private fun createTexture(textureImage: BufferedImage, texture: Int): Texture {
+    private fun createUndefinedTexture(): Texture {
+        if (undefinedTexture == null) {
+            val undefinedImage = BufferedImage(64, 64, IndexColorModel.OPAQUE)
+            with(undefinedImage.graphics) {
+                drawRect(0, 0, undefinedImage.width, undefinedImage.height)
+                drawString("Undefined", 0, 0)
+                dispose()
+            }
+            this.undefinedTexture = createTexture(undefinedImage, Texture.Type.AMBIENT, GlUtils.glGenTextures())
+        }
+
+        return undefinedTexture!!
+    }
+
+    private fun createTexture(textureImage: BufferedImage, type: Texture.Type, texture: Int): Texture {
         val textureBuffer = textureImage.let { image ->
             val pixelsArray = with(IntArray(size = image.width * image.height)) {
                 image.getRGB(0, 0, image.width, image.height, this, 0, image.width)
@@ -54,7 +75,7 @@ class TextureManager {
         GlUtils.glBindTexture(0)
         textureBuffer.clear()
 
-        return Texture(textureImage.width, textureImage.height, texture)
+        return Texture(textureImage.width, textureImage.height, texture, type)
     }
 
     companion object {

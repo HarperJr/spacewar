@@ -1,5 +1,6 @@
 package com.harper.spacewar.main
 
+import com.harper.spacewar.CameraSource
 import com.harper.spacewar.controls.Keyboard
 import com.harper.spacewar.controls.Mouse
 import com.harper.spacewar.display.Display
@@ -10,12 +11,17 @@ import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.resolution.ScaledResolutionProvider
+import com.harper.spacewar.main.resource.ResourceRegistry
 
 class Spacewar : Runnable, DisplayListener {
-    val textureManager = TextureManager()
-    val fontDrawer = FontDrawer(textureManager)
+    val textureManager: TextureManager = TextureManager()
+    val fontDrawer: FontDrawer = FontDrawer(textureManager)
+    val resourceRegistry: ResourceRegistry = ResourceRegistry(textureManager)
+
     val scaledResolution: ScaledResolution
-        get() = scaledResoltionProvider.resolution
+        get() = scaledResolutionProvider.resolution
+
+    var camera: CameraSource = Camera(this, 45f)
 
     /**
      * Main display
@@ -23,7 +29,8 @@ class Spacewar : Runnable, DisplayListener {
     private val display = Display(DEF_DP_WIDTH, DEF_DP_HEIGHT, DP_TITLE, false, this, Mouse, Keyboard)
 
     private val logger = Logger.getLogger<Spacewar>()
-    private val scaledResoltionProvider = ScaledResolutionProvider()
+    private val scaledResolutionProvider = ScaledResolutionProvider()
+    private val timer: Timer = Timer(20f)
     private val spacewarController = SpacewarController(this)
 
     private var isRunning = false
@@ -41,11 +48,13 @@ class Spacewar : Runnable, DisplayListener {
                 if (isInitializing)
                     initialize()
                 isRunning = display.isActive()
-
+                timer.update()
+                camera.update(timer.time)
                 if (isRunning)
                     display.update()
             }
         } catch (ex: Exception) {
+            ex.printStackTrace()
             logger.error(ex)
         } finally {
             display.terminate()
@@ -54,11 +63,8 @@ class Spacewar : Runnable, DisplayListener {
 
     override fun onInitialized() {
         GlUtils.glClearColor(0xdfdfdfff)
-        GlUtils.glEnable(GlUtils.DEPTH_TEST)
-        GlUtils.glDepthFunc(GlUtils.DEPTH_ALWAYS)
-        GlUtils.glEnableDepthMask()
 
-        spacewarController.onInitialized()
+        spacewarController.initialize()
     }
 
     override fun onUpdated() {
@@ -67,17 +73,17 @@ class Spacewar : Runnable, DisplayListener {
         if (display.width != displayWidth || display.height != displayHeight)
             updateCurrentResolution(display.width, display.height)
 
-        spacewarController.onUpdated()
+        spacewarController.update(timer.time)
     }
 
     override fun onDestroyed() {
-        spacewarController.onDestroyed()
+        spacewarController.destroy()
     }
 
     private fun updateCurrentResolution(width: Int, height: Int) {
         this.displayWidth = width
         this.displayHeight = height
-        scaledResoltionProvider.resolve(this.displayWidth, this.displayHeight)
+        scaledResolutionProvider.resolve(this.displayWidth, this.displayHeight)
         GlUtils.glViewport(0, 0, this.displayWidth, this.displayHeight)
     }
 
@@ -93,7 +99,7 @@ class Spacewar : Runnable, DisplayListener {
 
     companion object {
         private const val DEF_DP_WIDTH = 1020
-        private const val DEF_DP_HEIGHT = 840
+        private const val DEF_DP_HEIGHT = 640
         private const val DP_TITLE = "Spacewar"
 
         private const val DEF_FONT_PATH = "fonts/default.png"
