@@ -6,7 +6,7 @@ import org.joml.Vector3f
 
 abstract class Entity(private val renderManager: RenderManager) {
     private val axisAlignedBox: AABBf = AABBf()
-    private val position: Vector3f = Vector3f(0f)
+    val position: Vector3f = Vector3f(0f)
 
     var rotYaw: Float = 0f
         private set
@@ -33,8 +33,8 @@ abstract class Entity(private val renderManager: RenderManager) {
     }
 
     fun rotate(yaw: Float, roll: Float) {
-        this.rotYaw = yaw * 180f / Math.PI.toFloat()
-        this.rotRoll = roll * 180f / Math.PI.toFloat()
+        this.rotYaw = yaw
+        this.rotRoll = roll
     }
 
     private fun setAxisAlignedBoxPosition(x: Float, y: Float, z: Float) {

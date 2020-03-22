@@ -1,15 +1,14 @@
 package com.harper.spacewar.main.gui
 
+import com.harper.spacewar.display.listener.MouseListener
 import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.texture.TextureManager
-import com.harper.spacewar.main.gui.impl.GuiButton
-import com.harper.spacewar.main.gui.impl.GuiLabel
 import com.harper.spacewar.main.resolution.ScaledResolution
 
-abstract class GuiContainer(private val fontDrawer: FontDrawer, private val textureManager: TextureManager) : Gui() {
-    private val buttons: MutableList<GuiButton> = mutableListOf()
-    private val labels: MutableList<GuiLabel> = mutableListOf()
+abstract class GuiContainer(fontDrawer: FontDrawer, textureManager: TextureManager) : Gui(fontDrawer, textureManager) {
+    private val guiMouseListeners: MutableList<MouseListener> = mutableListOf()
+    private val guiElements: MutableList<GuiElement> = mutableListOf()
 
     abstract fun inflateGui(scaledWidth: Float, scaledHeight: Float)
 
@@ -18,34 +17,34 @@ abstract class GuiContainer(private val fontDrawer: FontDrawer, private val text
         GlUtils.glDepthFunc(GlUtils.DEPTH_ALWAYS)
         GlUtils.glEnableDepthMask()
 
-        for (btn in buttons)
-            btn.drawButton(fontDrawer, textureManager)
-        for (label in labels)
-            label.drawLabel(fontDrawer)
+        for (guiElement in this.guiElements)
+            guiElement.render(this)
 
         GlUtils.glDisable(GlUtils.DEPTH_TEST)
     }
 
     fun onResolutionChanged(scaledResolution: ScaledResolution) {
-        buttons.clear()
-        labels.clear()
+        guiElements.clear()
         inflateGui(scaledResolution.scaledWidth, scaledResolution.scaledHeight)
     }
 
     fun onClicked(x: Float, y: Float) {
-        for (btn in buttons)
+        for (btn in guiMouseListeners)
             btn.onClicked(x, y)
     }
 
     fun onMoved(x: Float, y: Float) {
-        for (btn in buttons)
+        for (btn in guiMouseListeners)
             btn.onMoved(x, y)
     }
 
-    protected fun addGuiElement(guiElement: Gui) {
+    protected fun addGuiElement(guiElement: GuiElement) {
         when (guiElement) {
-            is GuiButton -> buttons.add(guiElement)
-            is GuiLabel -> labels.add(guiElement)
+            is MouseListener -> guiMouseListeners.add(guiElement)
+            else -> {
+                /** Not implemented, just skip **/
+            }
         }
+        this.guiElements.add(guiElement)
     }
 }

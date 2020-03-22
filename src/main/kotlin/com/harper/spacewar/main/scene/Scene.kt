@@ -1,5 +1,7 @@
 package com.harper.spacewar.main.scene
 
+import com.conceptic.firefly.app.screen.Key
+import com.harper.spacewar.controls.Keyboard
 import com.harper.spacewar.controls.Mouse
 import com.harper.spacewar.logging.Logger
 import com.harper.spacewar.main.Spacewar
@@ -17,13 +19,24 @@ abstract class Scene(protected val spacewar: Spacewar) {
 
     private val entities: MutableMap<KClass<*>, Entity> = mutableMapOf()
     private var scaledResolution: ScaledResolution = spacewar.scaledResolution
+    private var isFirstUpdate = true
 
     abstract fun createScene()
 
+    open fun onKeyPressed(key: Key) { /** No implementation **/ }
+
+    open fun onKeyReleased(key: Key) { /** No implementation **/ }
+
     open fun update(time: Float) {
+        if (this.scaledResolution != spacewar.scaledResolution || isFirstUpdate) {
+            this.scaledResolution = spacewar.scaledResolution
+            this.isFirstUpdate = false
+            guiContainer?.onResolutionChanged(scaledResolution)
+        }
+
         GlUtils.glMatrixMode(GlUtils.PROJECTION)
         GlUtils.glLoadIdentity()
-        GlUtils.glPerspective(45f, scaledResolution.scaledWidth / scaledResolution.scaledHeight, 0.1f, 1000f)
+        GlUtils.glPerspective(45f, this.scaledResolution.scaledWidth / this.scaledResolution.scaledHeight, 0.1f, 1000f)
 
         GlUtils.glMatrixMode(GlUtils.MODELVIEW)
         GlUtils.glLoadIdentity()
@@ -34,6 +47,15 @@ abstract class Scene(protected val spacewar: Spacewar) {
 
         if (this.guiContainer != null)
             renderGui(time)
+
+        while (Keyboard.next()) {
+            val event = Keyboard.event()
+            val key = Keyboard.key
+            when (event) {
+                Keyboard.Event.PRESS -> onKeyPressed(key)
+                Keyboard.Event.RELEASE -> onKeyReleased(key)
+            }
+        }
     }
 
     fun addEntity(entity: Entity, x: Float, y: Float, z: Float): Entity {
@@ -55,11 +77,6 @@ abstract class Scene(protected val spacewar: Spacewar) {
     }
 
     private fun renderGui(time: Float) {
-        if (scaledResolution != spacewar.scaledResolution) {
-            scaledResolution = spacewar.scaledResolution
-            guiContainer?.onResolutionChanged(scaledResolution)
-        }
-
         val (scaledWidth, scaledHeight) = scaledResolution
         val mouseX = Mouse.xPos * scaledWidth / spacewar.displayWidth
         val mouseY = scaledHeight - Mouse.yPos * scaledHeight / spacewar.displayHeight

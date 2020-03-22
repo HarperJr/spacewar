@@ -14,16 +14,22 @@ class SceneMainMenu(spacewar: Spacewar, private val spacewarController: Spacewar
     private var prevYaw: Float = 0f
 
     override fun createScene() {
-        this.spaceshipEntity = addEntity(SpaceshipEntity(renderManager), -20f, -15f, -100f)
-            .also { it.rotate(90f, 60f) }
+        this.spacewar.camera.apply {
+            setPosition(0f, 10f, -90f)
+            setRotation(0f, 10f)
+        }
+
+        this.spaceshipEntity = addEntity(SpaceshipEntity(renderManager), 0f, 0f, 0f)
+            .also { it.rotate(90f, 0f) }
         this.guiContainer = this.guiMainMenu
     }
 
     override fun update(time: Float) {
         this.prevYaw = (this.prevYaw + (this.rotYaw - this.prevYaw) * time) % 360f
         this.spaceshipEntity.rotate(0f, this.prevYaw)
+        this.rotYaw += 0.1f
+
         super.update(time)
-        this.rotYaw += 0.00005f
     }
 
     fun onEnterBtnClicked() {

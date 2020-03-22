@@ -4,8 +4,10 @@ import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.buffer.VertexFormat
 import com.harper.spacewar.main.gl.font.FontDrawer
 import com.harper.spacewar.main.gl.tessellator.Tessellator
+import com.harper.spacewar.main.gl.texture.Texture
+import com.harper.spacewar.main.gl.texture.TextureManager
 
-open class Gui {
+open class Gui(private val fontDrawer: FontDrawer, val textureManager: TextureManager) {
     private val tessellator = Tessellator.instance
 
     fun drawRect(left: Float, bottom: Float, right: Float, top: Float, color: Long) {
@@ -27,17 +29,18 @@ open class Gui {
         GlUtils.glPushMatrix()
     }
 
-    protected fun drawTexturedRect(x: Float, y: Float, width: Float, height: Float, texX: Float, texY: Float, texWidth: Float, texHeight: Float) {
+    fun drawTexturedRect(texture: Texture, x: Float, y: Float, width: Float, height: Float, texX: Float, texY: Float) {
         GlUtils.glPopMatrix()
         GlUtils.glEnable(GlUtils.TEXTURE_2D)
-        GlUtils.glDisable(GlUtils.BLEND)
+        GlUtils.glBindTexture(texture.glTexture)
+        GlUtils.glEnable(GlUtils.BLEND)
         GlUtils.glColor(0xffffffff)
 
         tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX) {
-            pos(x, y + height, 0f).tex(texX / texWidth, (texY + height) / texHeight).completeVertex()
-            pos(x + width, y + height, 0f).tex((texX + width) / texWidth, (texY + height) / texHeight).completeVertex()
-            pos(x + width, y, 0f).tex((texX + width) / texWidth, texY / texHeight).completeVertex()
-            pos(x, y, 0f).tex(texX / texWidth, texY / texHeight).completeVertex()
+            pos(x, y + height, 0f).tex(texX / texture.width, (texY + height) / texture.height).completeVertex()
+            pos(x + width, y + height, 0f).tex((texX + width) / texture.width, (texY + height) / texture.height).completeVertex()
+            pos(x + width, y, 0f).tex((texX + width) / texture.width, texY / texture.height).completeVertex()
+            pos(x, y, 0f).tex(texX / texture.width, texY / texture.height).completeVertex()
         }
 
         GlUtils.glDisable(GlUtils.BLEND)
@@ -45,11 +48,11 @@ open class Gui {
         GlUtils.glPushMatrix()
     }
 
-    protected fun drawText(fontDrawer: FontDrawer, text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
+    fun drawText(text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
         fontDrawer.drawText(text, x, y, color, scaleFactor)
     }
 
-    protected fun drawCenteredText(fontDrawer: FontDrawer, text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
+    fun drawCenteredText(text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
         fontDrawer.drawCenteredText(text, x, y, color, scaleFactor)
     }
 }

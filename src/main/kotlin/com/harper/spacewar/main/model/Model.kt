@@ -36,8 +36,8 @@ class Model(meshes: List<Mesh>) {
     private fun getModelMatrix(yaw: Float, roll: Float, x: Float, y: Float, z: Float): Matrix4f {
         return modelMatrix.apply {
             translate(x, y, z)
-            rotateX(yaw)
-            rotateY(roll)
+            rotateX(yaw / 180f * Math.PI.toFloat())
+            rotateY(roll / 180f * Math.PI.toFloat())
         }
     }
 }

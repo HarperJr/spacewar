@@ -1,21 +1,21 @@
 package com.harper.spacewar.main.entity.renderer
 
-import com.harper.spacewar.CameraSource
 import com.harper.spacewar.main.Spacewar
 import com.harper.spacewar.main.entity.Entity
-import com.harper.spacewar.main.gl.GlUtils
-import com.harper.spacewar.main.gl.buffer.VertexFormat
-import com.harper.spacewar.main.resource.ModelResource
+import com.harper.spacewar.main.model.Model
+import com.harper.spacewar.main.resource.MeshesResources
 
 abstract class EntityRenderer<T : Entity>(private val spacewar: Spacewar) {
-    abstract val modelResource: ModelResource
-    private val camera: CameraSource = spacewar.camera
-    private var isModelLoaded = false
+    abstract val meshesResources: MeshesResources
+    private var entityModel: Model? = null
+    private var isLoaded = false
 
     fun render(entity: T, x: Float, y: Float, z: Float) {
-        this.isModelLoaded = modelResource.isLoaded()
-        if (this.isModelLoaded) {
-            modelResource.get().render(camera, entity.rotYaw, entity.rotRoll, x, y, z)
-        } else modelResource.load()
+        this.isLoaded = meshesResources.isLoaded()
+        if (this.isLoaded) {
+            if (this.entityModel == null)
+                this.entityModel = Model(meshesResources.get())
+            this.entityModel!!.render(spacewar.camera, entity.rotYaw, entity.rotRoll, x, y, z)
+        } else meshesResources.load()
     }
 }

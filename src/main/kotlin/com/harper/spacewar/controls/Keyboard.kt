@@ -40,6 +40,8 @@ object Keyboard : KeyboardListener {
     }
 
     private fun putEvent(event: Event) {
+        if (this.eventBuffer.remaining() == 0)
+            this.eventBuffer.position(0)
         this.eventBuffer.put(event.ordinal)
     }
 

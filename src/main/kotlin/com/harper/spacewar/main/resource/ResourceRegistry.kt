@@ -7,7 +7,7 @@ import com.harper.spacewar.main.model.Model
 class ResourceRegistry(textureManager: TextureManager) {
     private val logger = Logger.getLogger<ResourceRegistry>()
     private val resources = mutableMapOf<RegistryRes, Resource<*>>(
-        RegistryRes.SPACESHIP to ModelResource("/spaceship/spaceship.obj", textureManager)
+        RegistryRes.SPACESHIP to MeshesResources("/spaceship/spaceship.obj", textureManager)
     )
 
     private var isLoadingOrLoaded: Boolean = false
@@ -24,8 +24,8 @@ class ResourceRegistry(textureManager: TextureManager) {
         }
     }
 
-    fun getModelResource(registryRes: RegistryRes): ModelResource {
-        return getResource<Model>(registryRes) as ModelResource
+    fun getModelResource(registryRes: RegistryRes): MeshesResources {
+        return getResource<Model>(registryRes) as MeshesResources
     }
 
     private fun <T> getResource(registryRes: RegistryRes): Resource<T> {

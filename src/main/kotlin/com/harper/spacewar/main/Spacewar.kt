@@ -49,7 +49,6 @@ class Spacewar : Runnable, DisplayListener {
                     initialize()
                 isRunning = display.isActive()
                 timer.update()
-                camera.update(timer.time)
                 if (isRunning)
                     display.update()
             }
@@ -62,7 +61,8 @@ class Spacewar : Runnable, DisplayListener {
     }
 
     override fun onInitialized() {
-        GlUtils.glClearColor(0xdfdfdfff)
+        GlUtils.glClearColor(0xa0efefff)
+        fontDrawer.drawCenteredText("Please stand by...", displayWidth / 2f, displayHeight / 2f, 0xffffffff, 1f)
 
         spacewarController.initialize()
     }
