@@ -9,10 +9,10 @@ import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.utils.FileProvider
 import javax.imageio.ImageIO
 
-class FontDrawer(private val textureManager: TextureManager) {
+class FontRenderer(private val textureManager: TextureManager) {
     private val fileProvider = FileProvider.get()
     private val charWidthList = IntArray(CHARS_COUNT)
-    private val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!.,%-+/&()[] "
+    private val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!.,%-+/&()[]: "
 
     private var fontTexture: Texture? = null
 
@@ -137,6 +137,6 @@ class FontDrawer(private val textureManager: TextureManager) {
         private const val P_CHAR_INDEX = 41
         private const val Q_CHAR_INDEX = 42
         private const val Y_CHAR_INDEX = 50
-        private const val WHITESPACE_CHAR_INDEX = 74
+        private const val WHITESPACE_CHAR_INDEX = 75
     }
 }

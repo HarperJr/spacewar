@@ -76,7 +76,7 @@ class GuiHealthBar(
             texture,
             this.xPos,
             this.yPos,
-            max(0f, value - 0.5f) * texture.width / 2f,
+            max(0f, (value - 0.5f) * 2f) * texture.width / 2f,
             tileHeight,
             0f,
             tileHeight

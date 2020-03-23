@@ -6,4 +6,6 @@ interface MouseListener {
     fun onPressed(x: Float, y: Float)
 
     fun onMoved(x: Float, y: Float)
+
+    fun onScrolled(x: Float, y: Float)
 }

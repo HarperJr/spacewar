@@ -1,6 +1,6 @@
 package com.harper.spacewar.main.gui.impl
 
-import com.harper.spacewar.main.gl.font.FontDrawer
+import com.harper.spacewar.main.gl.font.FontRenderer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.GuiContainer
 import com.harper.spacewar.main.gui.impl.element.GuiButton
@@ -8,8 +8,8 @@ import com.harper.spacewar.main.gui.impl.element.GuiLabel
 import com.harper.spacewar.main.gui.listener.OnClickListener
 import com.harper.spacewar.main.scene.SceneMainMenu
 
-class GuiMainMenu(private val scene: SceneMainMenu, fontDrawer: FontDrawer, textureManager: TextureManager) :
-    GuiContainer(fontDrawer, textureManager) {
+class GuiMainMenu(private val scene: SceneMainMenu, fontRenderer: FontRenderer, textureManager: TextureManager) :
+    GuiContainer(fontRenderer, textureManager) {
 
     override fun inflateGui(scaledWidth: Float, scaledHeight: Float) {
         val offsetRight = scaledWidth - 160f

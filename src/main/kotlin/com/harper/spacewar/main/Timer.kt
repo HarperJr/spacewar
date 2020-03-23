@@ -20,7 +20,7 @@ class Timer(private val ticksPerSecond: Float) {
         this.partialTicks = this.time.toInt()
         this.time -= this.partialTicks.toFloat()
 
-        logger.debug("Time elapsed ${this.time}")
+        //logger.debug("Time elapsed ${this.time}")
     }
 
     private fun getSysTimeMillis(): Long {

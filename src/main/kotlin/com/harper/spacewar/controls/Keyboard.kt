@@ -1,6 +1,6 @@
 package com.harper.spacewar.controls
 
-import com.conceptic.firefly.app.screen.Key
+import com.harper.spacewar.display.Key
 import com.harper.spacewar.display.listener.KeyboardListener
 import org.lwjgl.BufferUtils
 

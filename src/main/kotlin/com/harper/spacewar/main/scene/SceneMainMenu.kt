@@ -8,7 +8,7 @@ import com.harper.spacewar.main.gui.GuiContainer
 import com.harper.spacewar.main.gui.impl.GuiMainMenu
 
 class SceneMainMenu(spacewar: Spacewar, private val spacewarController: SpacewarController) : Scene(spacewar) {
-    private val guiMainMenu: GuiContainer = GuiMainMenu(this, spacewar.fontDrawer, spacewar.textureManager)
+    private val guiMainMenu: GuiContainer = GuiMainMenu(this, spacewar.fontRenderer, spacewar.textureManager)
     private lateinit var spaceshipEntity: Entity
     private var rotYaw: Float = 0f
     private var prevYaw: Float = 0f
@@ -21,7 +21,7 @@ class SceneMainMenu(spacewar: Spacewar, private val spacewarController: Spacewar
 
         this.spaceshipEntity = addEntity(SpaceshipEntity(renderManager), 0f, 0f, 0f)
             .also { it.rotate(90f, 0f) }
-        this.guiContainer = this.guiMainMenu
+        super.setGui(this.guiMainMenu)
     }
 
     override fun update(time: Float) {

@@ -12,7 +12,8 @@ class GuiButton(
     override val yPos: Float,
     private val width: Float,
     private val height: Float,
-    private var text: String
+    private var text: String,
+    private var centered: Boolean = false
 ) : GuiElement, MouseListener {
     var onClickListener: OnClickListener? = null
     private var isHovered: Boolean = false
@@ -30,7 +31,7 @@ class GuiButton(
         val tileHeight = texture.height / 4f
         gui.drawTexturedRect(
             texture,
-            this.xPos,
+            if (this.centered) this.xPos - this.width / 2f else this.xPos,
             this.yPos,
             this.width / 2f,
             this.height,
@@ -40,7 +41,7 @@ class GuiButton(
 
         gui.drawTexturedRect(
             texture,
-            this.xPos + width / 2f,
+            if (this.centered) this.xPos else this.xPos + this.width / 2f,
             this.yPos,
             this.width / 2f,
             this.height,
@@ -49,7 +50,13 @@ class GuiButton(
         )
 
         val textColor = if (this.isHovered) 0xefefaaff else 0xffffffff
-        gui.drawCenteredText(this.text, this.xPos + this.width / 2f, this.yPos + this.height / 2f, textColor, 1f)
+        gui.drawCenteredText(
+            this.text,
+            if (centered) this.xPos else this.xPos + this.width / 2f,
+            this.yPos + this.height / 2f,
+            textColor,
+            1f
+        )
 
         GlUtils.glDisable(GlUtils.BLEND)
         GlUtils.glDisable(GlUtils.TEXTURE_2D)
@@ -65,11 +72,16 @@ class GuiButton(
     }
 
     override fun onClicked(x: Float, y: Float) {
-        if (isHovered)
+        if (this.isHovered)
             onClickListener?.onClicked(this, x, y)
     }
 
+    override fun onScrolled(x: Float, y: Float) {
+        /** Not implemented **/
+    }
+
     override fun onMoved(x: Float, y: Float) {
-        isHovered = x >= this.xPos && x <= this.xPos + this.width && y >= this.yPos && y <= this.yPos + this.height
+        val adjustedXPos = if (this.centered) this.xPos - this.width / 2f else this.xPos
+        this.isHovered = x >= adjustedXPos && x <= adjustedXPos + this.width && y >= this.yPos && y <= this.yPos + this.height
     }
 }

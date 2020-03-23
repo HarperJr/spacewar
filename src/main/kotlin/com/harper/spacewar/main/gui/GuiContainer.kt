@@ -2,11 +2,11 @@ package com.harper.spacewar.main.gui
 
 import com.harper.spacewar.display.listener.MouseListener
 import com.harper.spacewar.main.gl.GlUtils
-import com.harper.spacewar.main.gl.font.FontDrawer
+import com.harper.spacewar.main.gl.font.FontRenderer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.resolution.ScaledResolution
 
-abstract class GuiContainer(fontDrawer: FontDrawer, textureManager: TextureManager) : Gui(fontDrawer, textureManager) {
+abstract class GuiContainer(fontRenderer: FontRenderer, textureManager: TextureManager) : Gui(fontRenderer, textureManager) {
     private val guiMouseListeners: MutableList<MouseListener> = mutableListOf()
     private val guiElements: MutableList<GuiElement> = mutableListOf()
 
@@ -24,7 +24,8 @@ abstract class GuiContainer(fontDrawer: FontDrawer, textureManager: TextureManag
     }
 
     fun onResolutionChanged(scaledResolution: ScaledResolution) {
-        guiElements.clear()
+        this.guiElements.clear()
+        this.guiMouseListeners.clear()
         inflateGui(scaledResolution.scaledWidth, scaledResolution.scaledHeight)
     }
 

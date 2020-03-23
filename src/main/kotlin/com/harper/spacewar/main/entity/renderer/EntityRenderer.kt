@@ -22,6 +22,7 @@ abstract class EntityRenderer<T : Entity>(private val spacewar: Spacewar) {
         get() = spacewar.camera
 
     private val modelMatrix: Matrix4f = Matrix4f()
+    private val identityMatrix: Matrix4f = Matrix4f()
 
     private var entityModel: Model? = null
     private var isLoaded = false
@@ -36,14 +37,14 @@ abstract class EntityRenderer<T : Entity>(private val spacewar: Spacewar) {
 
                 // Draw model pass
                 modelShader.use<ModelShader> {
-                    bindMatrices(getModelMatrixWithRotation(entity, x, y, z), camera.view, camera.projection)
+                    bindMatrices(getModelMatrixForEntity(entity, x, y, z), camera.view, camera.projection)
                     this@EntityRenderer.entityModel!!.render()
                 }
 
                 // Draw AABB pass
                 outlineShader.use<OutlineShader> {
                     bindColor(0xff0000ff)
-                    bindMatrices(getModelMatrixWithoutRotation(x, y, z), camera.view, camera.projection)
+                    bindMatrices(identityMatrix, camera.view, camera.projection)
                     entity.drawAxisAlignedBox()
                 }
 
@@ -52,19 +53,12 @@ abstract class EntityRenderer<T : Entity>(private val spacewar: Spacewar) {
         } else meshesResources.load()
     }
 
-    private fun getModelMatrixWithRotation(entity: T, x: Float, y: Float, z: Float): Matrix4f {
+    private fun getModelMatrixForEntity(entity: T, x: Float, y: Float, z: Float): Matrix4f {
         this.modelMatrix.identity()
         return modelMatrix.apply {
             translate(x, y, z)
             rotateX(entity.rotYaw / 180f * Math.PI.toFloat())
-            rotateY(entity.rotRoll / 180f * Math.PI.toFloat())
-        }
-    }
-
-    private fun getModelMatrixWithoutRotation(x: Float, y: Float, z: Float): Matrix4f {
-        this.modelMatrix.identity()
-        return modelMatrix.apply {
-            translate(x, y, z)
+            rotateY(entity.rotPitch / 180f * Math.PI.toFloat())
         }
     }
 }

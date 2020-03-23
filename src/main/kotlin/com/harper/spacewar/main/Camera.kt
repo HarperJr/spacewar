@@ -53,9 +53,9 @@ class Camera(private val spacewar: Spacewar, private val fov: Float) : CameraSou
         this.position.set(x, y, z)
     }
 
-    override fun setRotation(pitch: Float, yaw: Float) {
-        this.pitch = pitch
+    override fun setRotation(yaw: Float, pitch: Float) {
         this.yaw = yaw
+        this.pitch = pitch
     }
 
     private fun getLookAtVector(): Vector3f {

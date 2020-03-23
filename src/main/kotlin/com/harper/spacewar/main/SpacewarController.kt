@@ -48,6 +48,10 @@ class SpacewarController(private val spacewar: Spacewar) {
         setScene(SceneInGame(spacewar, this))
     }
 
+    fun loadMainMenuScene() {
+        setScene(SceneMainMenu(spacewar, this))
+    }
+
     private fun setScene(newScene: Scene) {
         this.currentScene?.destroy()
         this.currentScene = newScene
@@ -57,12 +61,19 @@ class SpacewarController(private val spacewar: Spacewar) {
     private fun renderStandBy() {
         GlUtils.glMatrixMode(GlUtils.PROJECTION)
         GlUtils.glLoadIdentity()
-        GlUtils.glOrtho(0.0, scaledResolution.scaledWidth.toDouble(), scaledResolution.scaledHeight.toDouble(), 0.0, 0.2, 1000.0)
+        GlUtils.glOrtho(
+            0.0,
+            scaledResolution.scaledWidth.toDouble(),
+            scaledResolution.scaledHeight.toDouble(),
+            0.0,
+            0.2,
+            1000.0
+        )
         GlUtils.glMatrixMode(GlUtils.MODELVIEW)
         GlUtils.glLoadIdentity()
         GlUtils.glTranslatef(0f, 0f, -100f)
 
-        spacewar.fontDrawer.drawCenteredText(
+        spacewar.fontRenderer.drawCenteredText(
             "Please stand by...",
             scaledResolution.scaledWidth / 2f,
             scaledResolution.scaledHeight / 2f,

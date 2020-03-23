@@ -1,6 +1,6 @@
 package com.harper.spacewar.display.listener
 
-import com.conceptic.firefly.app.screen.Key
+import com.harper.spacewar.display.Key
 
 interface KeyboardListener {
     fun onPressed(key: Key)

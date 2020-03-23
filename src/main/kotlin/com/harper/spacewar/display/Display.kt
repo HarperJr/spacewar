@@ -1,9 +1,8 @@
 package com.harper.spacewar.display
 
-import com.conceptic.firefly.app.screen.Key
+import com.harper.spacewar.display.listener.DisplayListener
 import com.harper.spacewar.display.listener.KeyboardListener
 import com.harper.spacewar.display.listener.MouseListener
-import com.harper.spacewar.display.listener.DisplayListener
 import com.harper.spacewar.logging.Logger
 import org.lwjgl.glfw.Callbacks.glfwFreeCallbacks
 import org.lwjgl.glfw.GLFW.*
@@ -61,6 +60,10 @@ class Display(
             mouseListener.onMoved(this.lastCursorXPos, this.lastCursorYPost)
         }
 
+        glfwSetScrollCallback(window) { _, xOffset, yOffset ->
+            mouseListener.onScrolled(xOffset.toFloat(), yOffset.toFloat())
+        }
+
         glfwSetMouseButtonCallback(window) { _, button, action, _ ->
             when (action) {
                 GLFW_RELEASE ->
@@ -102,6 +105,13 @@ class Display(
 
         GL.createCapabilities()
         displayListener.onInitialized()
+    }
+
+    fun setCursorVisible(isVisible: Boolean) {
+        checkWindowNotNull()
+        if (isVisible) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
+        } else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED)
     }
 
     fun terminate() {

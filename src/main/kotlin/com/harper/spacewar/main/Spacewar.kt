@@ -7,7 +7,7 @@ import com.harper.spacewar.display.Display
 import com.harper.spacewar.display.listener.DisplayListener
 import com.harper.spacewar.logging.Logger
 import com.harper.spacewar.main.gl.GlUtils
-import com.harper.spacewar.main.gl.font.FontDrawer
+import com.harper.spacewar.main.gl.font.FontRenderer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.resolution.ScaledResolutionProvider
@@ -15,13 +15,23 @@ import com.harper.spacewar.main.resource.ResourceRegistry
 
 class Spacewar : Runnable, DisplayListener {
     val textureManager: TextureManager = TextureManager()
-    val fontDrawer: FontDrawer = FontDrawer(textureManager)
+    val fontRenderer: FontRenderer = FontRenderer(textureManager)
     val resourceRegistry: ResourceRegistry = ResourceRegistry(textureManager)
-
     val scaledResolution: ScaledResolution
         get() = scaledResolutionProvider.resolution
 
-    var camera: CameraSource = Camera(this, 45f)
+    val camera: CameraSource = Camera(this, 45f)
+
+    var displayWidth: Int = 0
+        private set
+
+    var displayHeight: Int = 0
+        private set
+
+    var fps: Int = 0
+        private set
+
+    private var fpsCounter: Int = 0
 
     /**
      * Main display
@@ -35,11 +45,8 @@ class Spacewar : Runnable, DisplayListener {
 
     private var isRunning = false
     private var isInitializing = true
+    private var prevTimeMillis: Long = System.currentTimeMillis()
 
-    var displayWidth: Int = 0
-        private set
-    var displayHeight: Int = 0
-        private set
 
     override fun run() {
         try {
@@ -62,7 +69,6 @@ class Spacewar : Runnable, DisplayListener {
 
     override fun onInitialized() {
         GlUtils.glClearColor(0xa0efefff)
-        fontDrawer.drawCenteredText("Please stand by...", displayWidth / 2f, displayHeight / 2f, 0xffffffff, 1f)
 
         spacewarController.initialize()
     }
@@ -74,10 +80,21 @@ class Spacewar : Runnable, DisplayListener {
             updateCurrentResolution(display.width, display.height)
 
         spacewarController.update(timer.time)
+
+        this.fpsCounter++
+        if (this.prevTimeMillis + 1000L < System.currentTimeMillis()) {
+            this.prevTimeMillis = System.currentTimeMillis()
+            this.fps = this.fpsCounter
+            this.fpsCounter = 0
+        }
     }
 
     override fun onDestroyed() {
         spacewarController.destroy()
+    }
+
+    fun setCursorVisible(isVisible: Boolean) {
+        this.display.setCursorVisible(isVisible)
     }
 
     private fun updateCurrentResolution(width: Int, height: Int) {
@@ -92,7 +109,7 @@ class Spacewar : Runnable, DisplayListener {
      */
     private fun initialize() {
         display.initialize()
-        fontDrawer.initializeFont(DEF_FONT_PATH)
+        fontRenderer.initializeFont(DEF_FONT_PATH)
 
         isInitializing = false
     }

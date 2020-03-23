@@ -1,4 +1,4 @@
-package com.conceptic.firefly.app.screen
+package com.harper.spacewar.display
 
 import org.lwjgl.glfw.GLFW
 
@@ -6,7 +6,7 @@ import org.lwjgl.glfw.GLFW
  * All used keys are declared here
  */
 enum class Key {
-    ESC, WHITESPACE, A, W, D, S, UNDEFINED;
+    ESC, WHITESPACE, A, W, D, S, F3, UNDEFINED;
 
     companion object {
         fun fromGlfw(key: Int) = when (key) {
@@ -16,6 +16,7 @@ enum class Key {
             GLFW.GLFW_KEY_W -> W
             GLFW.GLFW_KEY_D -> D
             GLFW.GLFW_KEY_S -> S
+            GLFW.GLFW_KEY_F3 -> F3
             else -> UNDEFINED
         }
     }

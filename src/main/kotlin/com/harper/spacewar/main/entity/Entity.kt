@@ -8,36 +8,36 @@ import org.joml.AABBf
 import org.joml.Vector3f
 
 abstract class Entity(private val renderManager: RenderManager) {
-    private val position: Vector3f = Vector3f(0f)
+    val position: Vector3f = Vector3f(0f)
 
     var rotYaw: Float = 0f
         private set
 
-    var rotRoll: Float = 0f
+    var rotPitch: Float = 0f
         private set
 
     protected var axisAlignedBox: AABBf = AABBf(0f, 0f, 0f, 1f, 1f, 1f)
 
-    fun create(x: Float, y: Float, z: Float) {
+    open fun create(x: Float, y: Float, z: Float) {
         setPosition(x, y, z)
     }
 
-    fun update(time: Float) {
+    open fun update(time: Float) {
         renderManager.renderEntity(this, position.x, position.y, position.z)
     }
 
     fun setPosition(x: Float, y: Float, z: Float) {
         this.position.set(x, y, z)
-        this.setAxisAlignedBoxPosition(x, y, z)
+        this.updateAxisAlignedBoxPosition()
     }
 
     fun move(x: Float, y: Float, z: Float) {
         this.setPosition(this.position.x + x, this.position.y + y, this.position.z + z)
     }
 
-    fun rotate(yaw: Float, roll: Float) {
-        this.rotYaw = yaw
-        this.rotRoll = roll
+    fun rotate(yaw: Float, pitch: Float) {
+        this.rotYaw = yaw % 360f
+        this.rotPitch = pitch % 360f
     }
 
     fun getBounds(): AABBf {
@@ -74,11 +74,11 @@ abstract class Entity(private val renderManager: RenderManager) {
         GlUtils.glEnable(GlUtils.TEXTURE_2D)
     }
 
-    private fun setAxisAlignedBoxPosition(x: Float, y: Float, z: Float) {
+    private fun updateAxisAlignedBoxPosition() {
         this.axisAlignedBox.translate(
-            x - axisAlignedBox.minX - axisAlignedBox.maxX / 2f,
-            y - axisAlignedBox.minY,
-            z - axisAlignedBox.minZ - axisAlignedBox.maxZ / 2f
+            this.position.x - axisAlignedBox.minX - (axisAlignedBox.maxX - axisAlignedBox.minX) / 2f,
+            this.position.y - axisAlignedBox.minY,
+            this.position.z - axisAlignedBox.minZ - (axisAlignedBox.maxZ - axisAlignedBox.minZ) / 2f
         )
     }
 }

@@ -10,5 +10,5 @@ interface CameraSource {
 
     fun setPosition(x: Float, y: Float, z: Float)
 
-    fun setRotation(pitch: Float, yaw: Float)
+    fun setRotation(yaw: Float, pitch: Float)
 }

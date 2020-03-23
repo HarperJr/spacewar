@@ -2,12 +2,12 @@ package com.harper.spacewar.main.gui
 
 import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.buffer.VertexFormat
-import com.harper.spacewar.main.gl.font.FontDrawer
+import com.harper.spacewar.main.gl.font.FontRenderer
 import com.harper.spacewar.main.gl.tessellator.Tessellator
 import com.harper.spacewar.main.gl.texture.Texture
 import com.harper.spacewar.main.gl.texture.TextureManager
 
-open class Gui(private val fontDrawer: FontDrawer, val textureManager: TextureManager) {
+open class Gui(private val fontRenderer: FontRenderer, val textureManager: TextureManager) {
     private val tessellator = Tessellator.instance
 
     fun drawRect(left: Float, bottom: Float, right: Float, top: Float, color: Long) {
@@ -15,8 +15,8 @@ open class Gui(private val fontDrawer: FontDrawer, val textureManager: TextureMa
         GlUtils.glDisable(GlUtils.TEXTURE_2D)
         GlUtils.glEnable(GlUtils.BLEND)
         GlUtils.glBlendFuncDefault()
-
         GlUtils.glColor(color)
+
         tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION) {
             pos(left, top, 0f).completeVertex()
             pos(right, top, 0f).completeVertex()
@@ -49,10 +49,10 @@ open class Gui(private val fontDrawer: FontDrawer, val textureManager: TextureMa
     }
 
     fun drawText(text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
-        fontDrawer.drawText(text, x, y, color, scaleFactor)
+        fontRenderer.drawText(text, x, y, color, scaleFactor)
     }
 
     fun drawCenteredText(text: String, x: Float, y: Float, color: Long, scaleFactor: Float) {
-        fontDrawer.drawCenteredText(text, x, y, color, scaleFactor)
+        fontRenderer.drawCenteredText(text, x, y, color, scaleFactor)
     }
 }
