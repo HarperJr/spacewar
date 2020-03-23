@@ -10,6 +10,7 @@ import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gui.GuiContainer
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.scene.renderer.RenderManager
+import org.joml.Vector3f
 import kotlin.reflect.KClass
 
 abstract class Scene(protected val spacewar: Spacewar) {
@@ -17,15 +18,21 @@ abstract class Scene(protected val spacewar: Spacewar) {
     protected val renderManager: RenderManager = RenderManager(spacewar)
     protected var guiContainer: GuiContainer? = null
 
+    private val identityVector: Vector3f = Vector3f()
+
     private val entities: MutableMap<KClass<*>, Entity> = mutableMapOf()
     private var scaledResolution: ScaledResolution = spacewar.scaledResolution
     private var isFirstUpdate = true
 
     abstract fun createScene()
 
-    open fun onKeyPressed(key: Key) { /** No implementation **/ }
+    open fun onKeyPressed(key: Key) {
+        /** No implementation **/
+    }
 
-    open fun onKeyReleased(key: Key) { /** No implementation **/ }
+    open fun onKeyReleased(key: Key) {
+        /** No implementation **/
+    }
 
     open fun update(time: Float) {
         if (this.scaledResolution != spacewar.scaledResolution || isFirstUpdate) {
@@ -34,17 +41,10 @@ abstract class Scene(protected val spacewar: Spacewar) {
             guiContainer?.onResolutionChanged(scaledResolution)
         }
 
-        GlUtils.glMatrixMode(GlUtils.PROJECTION)
-        GlUtils.glLoadIdentity()
-        GlUtils.glPerspective(45f, this.scaledResolution.scaledWidth / this.scaledResolution.scaledHeight, 0.1f, 1000f)
-
-        GlUtils.glMatrixMode(GlUtils.MODELVIEW)
-        GlUtils.glLoadIdentity()
-        GlUtils.glTranslatef(0f, 0f, -1f)
-
         for ((_, entity) in this.entities)
             entity.update(time)
 
+        applyGuiProjection()
         if (this.guiContainer != null)
             renderGui(time)
 
@@ -90,13 +90,34 @@ abstract class Scene(protected val spacewar: Spacewar) {
             }
         }
 
+        guiContainer?.render(time)
+    }
+
+    private fun applyCameraProjection() {
         GlUtils.glMatrixMode(GlUtils.PROJECTION)
         GlUtils.glLoadIdentity()
-        GlUtils.glOrtho(0.0, scaledWidth.toDouble(), scaledHeight.toDouble(), 0.0, 0.2, 1000.0)
+        GlUtils.glLoadMatrix(spacewar.camera.projection)
+
+        GlUtils.glMatrixMode(GlUtils.MODELVIEW)
+        GlUtils.glLoadIdentity()
+
+        this.identityVector.mulPosition(spacewar.camera.view)
+        GlUtils.glTranslatef(this.identityVector.x, this.identityVector.y, this.identityVector.z)
+    }
+
+    private fun applyGuiProjection() {
+        GlUtils.glMatrixMode(GlUtils.PROJECTION)
+        GlUtils.glLoadIdentity()
+        GlUtils.glOrtho(
+            0.0,
+            this.scaledResolution.scaledWidth.toDouble(),
+            this.scaledResolution.scaledHeight.toDouble(),
+            0.0,
+            0.2,
+            1000.0
+        )
         GlUtils.glMatrixMode(GlUtils.MODELVIEW)
         GlUtils.glLoadIdentity()
         GlUtils.glTranslatef(0f, 0f, -100f)
-
-        guiContainer?.render(time)
     }
 }

@@ -3,6 +3,7 @@ package com.harper.spacewar.main.gl.shader.definition
 import com.harper.spacewar.main.gl.shader.Shader
 import com.harper.spacewar.main.gl.shader.impl.GuiShader
 import com.harper.spacewar.main.gl.shader.impl.ModelShader
+import com.harper.spacewar.main.gl.shader.impl.OutlineShader
 import kotlin.reflect.full.primaryConstructor
 
 sealed class ShaderDefinition(val name: String) {
@@ -32,5 +33,15 @@ object GuiShaderDefinition : ShaderDefinition("View") {
 
     override fun inflateShader(shaderProgram: Int): Shader {
         return GuiShader(shaderProgram)
+    }
+}
+
+object OutlineShaderDefinition : ShaderDefinition("Outline") {
+    override val sourceFolder: String = "outline/"
+    override val scripts: List<ShaderScript>
+        get() = listOf(script<VertexShader>(), script<FragmentShader>())
+
+    override fun inflateShader(shaderProgram: Int): Shader {
+        return OutlineShader(shaderProgram)
     }
 }

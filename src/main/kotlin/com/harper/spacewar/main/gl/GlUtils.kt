@@ -9,9 +9,14 @@ import java.nio.IntBuffer
 object GlUtils {
     const val PROJECTION = GL11.GL_PROJECTION
     const val MODELVIEW = GL11.GL_MODELVIEW
+
     const val DRAW_MODE_TRIANGLES = GL11.GL_TRIANGLES
     const val DRAW_MODE_TRIANGLES_FAN = GL11.GL_TRIANGLE_FAN
+    const val DRAW_MODE_LINE_STRIP = GL11.GL_LINE_STRIP
+    const val DRAW_MODE_LINE_LOOP = GL11.GL_LINE_LOOP
+    const val DRAW_MODE_LINE = GL11.GL_LINE
     const val DRAW_MODE_QUADS = GL11.GL_QUADS
+
     const val COLOR_DEPTH_BUFFER_BIT = GL11.GL_COLOR_BUFFER_BIT or GL11.GL_DEPTH_BUFFER_BIT
 
     const val TEXTURE_2D = GL11.GL_TEXTURE_2D
@@ -24,8 +29,8 @@ object GlUtils {
     const val STATIC_DRAW = GL15.GL_STATIC_DRAW
     const val ARRAY_BUFFER = GL15.GL_ARRAY_BUFFER
 
-    private val matrix4 = Matrix4f()
-    private val matrix4Array = FloatArray(16)
+    private val array4Matrix = FloatArray(16)
+    private val identityMatrix: Matrix4f = Matrix4f()
 
     fun glTranslatef(x: Float, y: Float, z: Float) {
         GL11.glTranslatef(x, y, z)
@@ -142,7 +147,7 @@ object GlUtils {
     }
 
     fun glLoadIdentity() {
-        GL11.glLoadIdentity()
+        GL11.glLoadMatrixf(identityMatrix.get(array4Matrix))
     }
 
     fun glOrtho(left: Double, right: Double, top: Double, bottom: Double, near: Double, far: Double) {
@@ -185,11 +190,11 @@ object GlUtils {
         GL15.glBindBuffer(target, buffer)
     }
 
-    fun glPerspective(fov: Float, aspect: Float, near: Float, far: Float) {
-        GL11.glLoadMatrixf(matrix4.setPerspective(fov, aspect, near, far).get(matrix4Array))
+    fun glLoadMatrix(matrix: Matrix4f) {
+        GL11.glLoadMatrixf(matrix.get(array4Matrix))
     }
 
-    fun glLight() {
-
+    fun glLineWidth(width: Float) {
+        GL11.glLineWidth(width)
     }
 }

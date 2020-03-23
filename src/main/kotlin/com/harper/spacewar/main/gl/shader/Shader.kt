@@ -14,9 +14,9 @@ abstract class Shader(private val shaderProgram: Int) {
 
     abstract fun bindAttributes()
 
-    fun use(process: Shader.() -> Unit) {
+    fun <T : Shader> use(process: T.() -> Unit) {
         GL20.glUseProgram(shaderProgram)
-        process.invoke(this)
+        process.invoke(this as T)
         GL20.glUseProgram(NO_PROGRAM)
     }
 

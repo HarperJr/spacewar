@@ -14,8 +14,6 @@ class SceneInGame(spacewar: Spacewar, spacewarController: SpacewarController) : 
     private lateinit var playerEntity: SpaceshipEntity
 
     private val enemies: List<Entity> = mutableListOf()
-    private var currTimeMillis = System.currentTimeMillis()
-    private var ticks: Float = 0f
 
     override fun createScene() {
         this.playerEntity = addEntity(SpaceshipEntity(renderManager), 0f, 0f, 0f)
@@ -24,15 +22,15 @@ class SceneInGame(spacewar: Spacewar, spacewarController: SpacewarController) : 
     }
 
     override fun update(time: Float) {
+        val entityBounds = playerEntity.getBounds()
         this.spacewar.camera.apply {
-            setRotation(10f, 0f)
+            setRotation(25f, 0f)
             setPosition(
-                playerEntity.position.x,
-                playerEntity.position.y + 20f,
-                playerEntity.position.z - 40f
+                (entityBounds.minX + entityBounds.maxX) / 2f,
+                (entityBounds.minY + entityBounds.maxY) / 2f + (entityBounds.maxY - entityBounds.minY) * 2,
+                (entityBounds.minZ + entityBounds.maxZ) / 2f - (entityBounds.maxZ - entityBounds.minZ) / 1.5f
             )
         }
-
 
         super.update(time)
     }
