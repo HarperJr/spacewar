@@ -1,6 +1,5 @@
 package com.harper.spacewar.main
 
-import com.harper.spacewar.CameraSource
 import com.harper.spacewar.controls.Keyboard
 import com.harper.spacewar.controls.Mouse
 import com.harper.spacewar.display.Display
@@ -19,8 +18,6 @@ class Spacewar : Runnable, DisplayListener {
     val resourceRegistry: ResourceRegistry = ResourceRegistry(textureManager)
     val scaledResolution: ScaledResolution
         get() = scaledResolutionProvider.resolution
-
-    val camera: CameraSource = Camera(this, 45f)
 
     var displayWidth: Int = 0
         private set

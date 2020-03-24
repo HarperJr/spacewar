@@ -23,6 +23,7 @@ class GuiMainMenu(private val scene: SceneMainMenu, fontRenderer: FontRenderer, 
                 "Enter the game"
             ).also { it.onClickListener = onClickListener }
         )
+
         addGuiElement(
             GuiButton(
                 LOAD_BTN_ID,
@@ -33,6 +34,7 @@ class GuiMainMenu(private val scene: SceneMainMenu, fontRenderer: FontRenderer, 
                 "Load the game"
             ).also { it.onClickListener = onClickListener }
         )
+
         addGuiElement(
             GuiButton(
                 LEAVE_BTN_ID,
@@ -43,6 +45,7 @@ class GuiMainMenu(private val scene: SceneMainMenu, fontRenderer: FontRenderer, 
                 "Leave the game"
             ).also { it.onClickListener = onClickListener }
         )
+
         addGuiElement(GuiLabel(4f, scaledHeight - 12f, "Spacewar v 0.1 dev", false))
         addGuiElement(GuiLabel(scaledWidth / 2f, 16f, "SPACEWAR THE GAME", true, 0xffffffff, 2f))
     }

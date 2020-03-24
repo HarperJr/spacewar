@@ -2,12 +2,14 @@ package com.harper.spacewar.main.scene
 
 import com.harper.spacewar.controls.Mouse
 import com.harper.spacewar.display.Key
+import com.harper.spacewar.main.Camera
 import com.harper.spacewar.main.Spacewar
 import com.harper.spacewar.main.SpacewarController
-import com.harper.spacewar.main.entity.Entity
-import com.harper.spacewar.main.entity.PlayerEntity
+import com.harper.spacewar.main.entity.EntityEnemy
+import com.harper.spacewar.main.entity.EntityPlayer
 import com.harper.spacewar.main.gui.impl.GuiInGame
 import com.harper.spacewar.main.gui.impl.GuiInGameMenu
+import org.joml.Random
 import org.joml.Vector3f
 import kotlin.math.max
 import kotlin.math.min
@@ -16,8 +18,7 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
     private val guiInGame: GuiInGame = GuiInGame(this, spacewar.fontRenderer, spacewar.textureManager)
     private val guiInGameMenu: GuiInGameMenu = GuiInGameMenu(this, spacewar.fontRenderer, spacewar.textureManager)
 
-    lateinit var playerEntity: PlayerEntity
-        private set
+    override val camera: Camera = Camera(this, 50f)
 
     val fps: Int
         get() = spacewar.fps
@@ -25,33 +26,42 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
     var isPaused = false
         private set
 
-    private val enemies: List<Entity> = mutableListOf()
+    var cameraRotYaw: Float = 0f
+        private set
+
+    var cameraRotPitch: Float = 0f
+        private set
+
+    private val enemies: MutableList<EntityEnemy> = mutableListOf()
+    lateinit var entityPlayer: EntityPlayer
+        private set
 
     private var scrollFactor: Float = MIN_SCROLL_FACTOR
-    private var cameraRotYaw: Float = 0f
-    private var cameraRotPitch: Float = 0f
     private var prevMousePosX: Float = 0f
     private var prevMousePosY: Float = 0f
+
+    private val currentTimeMillis: Long
+        get() = System.currentTimeMillis()
+    private var prevTimeMillis: Long = currentTimeMillis
+
+    private val random: Random = Random(1000)
 
 
     override fun createScene() {
         this.spacewar.setCursorVisible(false)
-        this.playerEntity = addEntity(PlayerEntity(this, renderManager), 0f, 0f, 0f)
-            .also { it.rotate(0f, 180f) } as PlayerEntity
+        this.entityPlayer = addEntity(EntityPlayer(this), 0f, 0f, 0f) as EntityPlayer
         super.setGui(this.guiInGame)
     }
 
     override fun update(time: Float) {
         if (!this.isPaused) {
-            val adjustedXPos = (Mouse.xPos - this.spacewar.displayWidth / 2f) / this.spacewar.displayWidth * 1000f
-            val adjustedYPos = (Mouse.yPos - this.spacewar.displayHeight / 2f) / this.spacewar.displayHeight * 1000f
-            val deltaYaw = ((adjustedXPos - prevMousePosX) * time) * MOUSE_SENSITIVITY
-            val deltaPitch = ((adjustedYPos - prevMousePosY) * time) * MOUSE_SENSITIVITY
-            this.cameraRotYaw = (this.cameraRotYaw + deltaYaw) % 360f
-            this.cameraRotPitch = (this.cameraRotPitch - deltaPitch) % 360f
+            updateCameraControls(time)
 
-            this.prevMousePosX = adjustedXPos
-            this.prevMousePosY = adjustedYPos
+            if (this.prevTimeMillis + ENEMY_SPAWN_THRESHOLD_MILLIS <= currentTimeMillis) {
+                if (this.enemies.size < MAX_ENEMIES_COUNT)
+                    spawnEnemy()
+                this.prevTimeMillis = currentTimeMillis
+            }
         }
 
         updateCamera()
@@ -64,16 +74,24 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
     }
 
     override fun onKeyPressed(key: Key) {
-        if (key == Key.ESC)
-            switchPausedState()
-        if (key == Key.F3 && !isPaused) {
-            this.guiInGame.switchDebuggingState()
-            super.requestGuiUpdate()
+        when (key) {
+            Key.ESC -> switchPausedState()
+            Key.W -> this.entityPlayer.accelerate = true
+            Key.F3 -> {
+                if (!isPaused) {
+                    this.guiInGame.switchDebuggingState()
+                    super.requestGuiUpdate()
+                }
+            }
+            else -> {
+                /** Not implemented, just skip **/
+            }
         }
     }
 
     override fun onKeyReleased(key: Key) {
-
+        if (key == Key.W)
+            this.entityPlayer.accelerate = false
     }
 
     fun onContinueBtnClicked() {
@@ -88,20 +106,45 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
         this.spacewarController.loadMainMenuScene()
     }
 
+    private fun spawnEnemy() {
+        val playerPos = this.entityPlayer.position
+        val entityEnemy = addEntity(
+            EntityEnemy(this),
+            playerPos.x + 1000 - random.nextInt(500),
+            playerPos.y + 1000 - random.nextInt(500),
+            playerPos.z + 1000 - random.nextInt(500)
+        ) as EntityEnemy
+
+        this.enemies.add(entityEnemy)
+    }
+
+    private fun updateCameraControls(time: Float) {
+        val adjustedXPos = (Mouse.xPos - this.spacewar.displayWidth / 2f) / this.spacewar.displayWidth * 1000f
+        val adjustedYPos = (Mouse.yPos - this.spacewar.displayHeight / 2f) / this.spacewar.displayHeight * 1000f
+        val deltaYaw = ((adjustedXPos - prevMousePosX) * time) * MOUSE_SENSITIVITY
+        val deltaPitch = ((adjustedYPos - prevMousePosY) * time) * MOUSE_SENSITIVITY
+        this.cameraRotYaw = (this.cameraRotYaw - deltaYaw) % 360f
+        this.cameraRotPitch = (this.cameraRotPitch + deltaPitch) % 360f
+
+        this.prevMousePosX = adjustedXPos
+        this.prevMousePosY = adjustedYPos
+    }
+
     private fun updateCamera() {
-        val entityBounds = playerEntity.getBounds()
-        val entityCenter = Vector3f(
+        val entityBounds = entityPlayer.getBounds()
+        val entityCenterPos = Vector3f(
             (entityBounds.minX + entityBounds.maxX) / 2f,
             (entityBounds.minY + entityBounds.maxY) / 2f,
             (entityBounds.minZ + entityBounds.maxZ) / 2f
         )
 
-        this.spacewar.camera.apply {
+        this.camera.apply {
             setRotation(this@SceneInGame.cameraRotYaw, this@SceneInGame.cameraRotPitch)
+            setLookAt(entityCenterPos.x, entityCenterPos.y, entityCenterPos.z)
             setPosition(
-                entityCenter.x,
-                entityCenter.y + (entityBounds.maxY - entityBounds.minY) * 2f * scrollFactor,
-                entityCenter.z - (entityBounds.maxZ - entityBounds.minZ) * 1.5f * scrollFactor
+                entityCenterPos.x,
+                entityCenterPos.y + (entityBounds.maxY - entityBounds.minY) * 1.5f * scrollFactor,
+                entityCenterPos.z + (entityBounds.maxZ - entityBounds.minZ) * 1.5f * scrollFactor
             )
         }
     }
@@ -115,8 +158,10 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
     }
 
     companion object {
-        private const val MIN_SCROLL_FACTOR = 1f
-        private const val MAX_SCROLL_FACTOR = 2f
+        private const val MIN_SCROLL_FACTOR = 2f
+        private const val MAX_SCROLL_FACTOR = 3f
         private const val MOUSE_SENSITIVITY = 0.1f
+        private const val MAX_ENEMIES_COUNT = 10
+        private const val ENEMY_SPAWN_THRESHOLD_MILLIS = 5000
     }
 }

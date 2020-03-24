@@ -9,6 +9,9 @@ class VertexFormat(vararg vertexElements: VertexElement) {
     var texCoordOffset: Int = -1
         private set
 
+    var colorOffset: Int = -1
+        private set
+
     var normalOffset: Int = -1
         private set
 
@@ -40,6 +43,7 @@ class VertexFormat(vararg vertexElements: VertexElement) {
         } else {
             when (element.type) {
                 VertexElement.Type.TEX_2F -> texCoordOffset = nextOffset
+                VertexElement.Type.COLOR_4B -> colorOffset = nextOffset
                 VertexElement.Type.NORMAL_3B -> normalOffset = nextOffset
                 else -> { /** Do nothing, just skip **/ }
             }
@@ -56,6 +60,12 @@ class VertexFormat(vararg vertexElements: VertexElement) {
 
     companion object {
         val POSITION = VertexFormat(VertexElement.POSITION_3F)
+
+        val POSITION_COLOR = VertexFormat(
+            VertexElement.POSITION_3F,
+            VertexElement.COLOR_4B
+        )
+
         val POSITION_TEX = VertexFormat(
             VertexElement.POSITION_3F,
             VertexElement.TEX_2F

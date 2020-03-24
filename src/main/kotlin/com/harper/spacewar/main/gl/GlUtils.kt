@@ -14,13 +14,14 @@ object GlUtils {
     const val DRAW_MODE_TRIANGLES_FAN = GL11.GL_TRIANGLE_FAN
     const val DRAW_MODE_LINE_STRIP = GL11.GL_LINE_STRIP
     const val DRAW_MODE_LINE_LOOP = GL11.GL_LINE_LOOP
-    const val DRAW_MODE_LINE = GL11.GL_LINE
+    const val DRAW_MODE_LINES = GL11.GL_LINES
     const val DRAW_MODE_QUADS = GL11.GL_QUADS
 
     const val COLOR_DEPTH_BUFFER_BIT = GL11.GL_COLOR_BUFFER_BIT or GL11.GL_DEPTH_BUFFER_BIT
 
     const val TEXTURE_2D = GL11.GL_TEXTURE_2D
     const val DEPTH_TEST = GL11.GL_DEPTH_TEST
+    const val COLOR = GL11.GL_COLOR
 
     const val BLEND = GL11.GL_BLEND
     const val DEPTH_ALWAYS = GL11.GL_ALWAYS
@@ -30,7 +31,6 @@ object GlUtils {
     const val ARRAY_BUFFER = GL15.GL_ARRAY_BUFFER
 
     private val array4Matrix = FloatArray(16)
-    private val identityMatrix: Matrix4f = Matrix4f()
 
     fun glTranslatef(x: Float, y: Float, z: Float) {
         GL11.glTranslatef(x, y, z)
@@ -147,7 +147,7 @@ object GlUtils {
     }
 
     fun glLoadIdentity() {
-        GL11.glLoadMatrixf(identityMatrix.get(array4Matrix))
+        GL11.glLoadIdentity()
     }
 
     fun glOrtho(left: Double, right: Double, top: Double, bottom: Double, near: Double, far: Double) {

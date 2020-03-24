@@ -66,6 +66,21 @@ class BufferBuilder(capacity: Int) {
         this.nextVertexFormatIndex()
     }
 
+    fun color(color: Long): BufferBuilder = this.apply {
+        val index =
+            this.vertexCount * this.vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
+        when (vertexFormatElement.format) {
+            VertexElement.Format.UBYTE -> {
+                rawByteBuffer.put(index + 0, (color shr 24 and 255).toByte())
+                rawByteBuffer.put(index + 1, (color shr 16 and 255).toByte())
+                rawByteBuffer.put(index + 2, (color shr 8 and 255).toByte())
+                rawByteBuffer.put(index + 3, (color and 255).toByte())
+            }
+            else -> return this
+        }
+        nextVertexFormatIndex()
+    }
+
     fun tex(u: Float, v: Float): BufferBuilder = this.apply {
         val index =
             this.vertexCount * this.vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
@@ -117,7 +132,8 @@ class BufferBuilder(capacity: Int) {
 
     private fun growBuffer(nextOffset: Int) {
         if (roundUp(nextOffset, 4) / 4 > this.rawIntBuffer.remaining() ||
-            this.vertexCount * this.vertexFormat.nextOffset + nextOffset > this.rawByteBuffer.capacity()) {
+            this.vertexCount * this.vertexFormat.nextOffset + nextOffset > this.rawByteBuffer.capacity()
+        ) {
             val currentBufferCap = this.rawByteBuffer.capacity()
             val growBufferCap = currentBufferCap + roundUp(nextOffset, 2097152)
             val intBufferPos = this.rawIntBuffer.position()

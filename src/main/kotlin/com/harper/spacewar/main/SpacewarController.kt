@@ -33,7 +33,6 @@ class SpacewarController(private val spacewar: Spacewar) {
         }
 
         if (!this.sceneIsDirty) {
-            spacewar.camera.update(time)
             currentScene?.update(time)
         } else {
             renderStandBy()

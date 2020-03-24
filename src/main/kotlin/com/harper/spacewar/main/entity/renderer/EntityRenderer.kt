@@ -1,6 +1,6 @@
 package com.harper.spacewar.main.entity.renderer
 
-import com.harper.spacewar.CameraSource
+import com.harper.spacewar.main.Camera
 import com.harper.spacewar.main.Spacewar
 import com.harper.spacewar.main.entity.Entity
 import com.harper.spacewar.main.gl.GlUtils
@@ -18,8 +18,6 @@ abstract class EntityRenderer<T : Entity>(private val spacewar: Spacewar) {
 
     private val modelShader: ModelShader = ShaderProvider.provide(ModelShaderDefinition)
     private val outlineShader: OutlineShader = ShaderProvider.provide(OutlineShaderDefinition)
-    private val camera: CameraSource
-        get() = spacewar.camera
 
     private val modelMatrix: Matrix4f = Matrix4f()
     private val identityMatrix: Matrix4f = Matrix4f()
@@ -27,7 +25,7 @@ abstract class EntityRenderer<T : Entity>(private val spacewar: Spacewar) {
     private var entityModel: Model? = null
     private var isLoaded = false
 
-    fun render(entity: T, x: Float, y: Float, z: Float) {
+    fun render(entity: T, camera: Camera, x: Float, y: Float, z: Float) {
         this.isLoaded = meshesResources.isLoaded()
         if (this.isLoaded) {
             if (this.entityModel != null) {
@@ -57,8 +55,8 @@ abstract class EntityRenderer<T : Entity>(private val spacewar: Spacewar) {
         this.modelMatrix.identity()
         return modelMatrix.apply {
             translate(x, y, z)
-            rotateX(entity.rotYaw / 180f * Math.PI.toFloat())
-            rotateY(entity.rotPitch / 180f * Math.PI.toFloat())
+            rotateY(entity.rotYaw / 180f * Math.PI.toFloat())
+            rotateX(entity.rotPitch / 180f * Math.PI.toFloat())
         }
     }
 }
