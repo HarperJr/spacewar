@@ -109,6 +109,7 @@ class Display(
 
     fun setCursorVisible(isVisible: Boolean) {
         checkWindowNotNull()
+        glfwSetCursorPos(window, this.width / 2.0, this.height / 2.0)
         if (isVisible) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL)
         } else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED)

@@ -4,22 +4,24 @@ import com.harper.spacewar.controls.Keyboard
 import com.harper.spacewar.controls.Mouse
 import com.harper.spacewar.display.Key
 import com.harper.spacewar.logging.Logger
-import com.harper.spacewar.main.Camera
 import com.harper.spacewar.main.Spacewar
 import com.harper.spacewar.main.entity.Entity
-import com.harper.spacewar.main.gl.GlUtils
+import com.harper.spacewar.main.entity.EntityLiving
 import com.harper.spacewar.main.gui.GuiContainer
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.scene.renderer.RenderManager
 
 abstract class Scene(protected val spacewar: Spacewar) {
-    val renderManager: RenderManager = RenderManager(spacewar)
     var scaledResolution: ScaledResolution = spacewar.scaledResolution
         private set
+
+    private val renderManager: RenderManager
+        get() = spacewar.renderManager
 
     protected val logger = Logger.getLogger<SceneMainMenu>()
 
     private val entities: MutableMap<Int, Entity> = mutableMapOf()
+    private val entitiesToBeRemoved: MutableMap<Int, Entity> = mutableMapOf()
     private var guiContainer: GuiContainer? = null
     private var needsToUpdateGui: Boolean = true
     private var nextEntityId: Int = 0
@@ -44,6 +46,10 @@ abstract class Scene(protected val spacewar: Spacewar) {
         /** No implementation **/
     }
 
+    open fun onMousePressed(x: Float, y: Float) {
+        /** No implementation **/
+    }
+
     open fun onMouseScrolled(x: Float, y: Float) {
         /** No implementation **/
     }
@@ -55,12 +61,26 @@ abstract class Scene(protected val spacewar: Spacewar) {
             this.needsToUpdateGui = false
         }
 
-        this.camera.update(time)
+        this.camera.update()
 
-        for ((_, entity) in this.entities)
+        for ((_, entity) in this.entities) {
+            if (entity is EntityLiving && entity.isDead)
+                entitiesToBeRemoved[entity.id] = entity
+
             entity.update(time)
+            renderManager.renderEntity(
+                entity,
+                this.camera,
+                entity.position.x,
+                entity.position.y,
+                entity.position.z
+            )
+        }
 
-        applyGuiProjection()
+        for ((key, _) in this.entitiesToBeRemoved)
+            this.entities.remove(key)
+        this.entitiesToBeRemoved.clear()
+
         if (this.guiContainer != null)
             renderGui(time)
 
@@ -83,10 +103,26 @@ abstract class Scene(protected val spacewar: Spacewar) {
         this.guiContainer = null
     }
 
-    protected fun addEntity(entity: Entity, x: Float, y: Float, z: Float): Entity {
-        this.entities[this.nextEntityId++] = entity
-            .also { it.create(x, y, z) }
+    fun addEntity(entity: Entity, x: Float, y: Float, z: Float): Entity {
+        this.entities[this.nextEntityId] = entity
+            .also {
+                it.id = this.nextEntityId
+                it.create(x, y, z)
+            }
+        this.nextEntityId++
         return entity
+    }
+
+    fun getEntitiesCollidedExcept(entity: Entity, exceptEntities: List<Entity>): List<Entity> {
+        val collidedEntities = mutableListOf<Entity>()
+        for ((_, e) in this.entities) {
+            if (e == entity || exceptEntities.contains(e) ||
+                this.entitiesToBeRemoved.containsKey(e.id)
+            ) continue
+            if (e.isCollidedWidth(entity))
+                collidedEntities.add(e)
+        }
+        return collidedEntities
     }
 
     protected fun setGui(gui: GuiContainer) {
@@ -119,28 +155,15 @@ abstract class Scene(protected val spacewar: Spacewar) {
                 Mouse.Event.SCROLL -> {
                     onMouseScrolled(Mouse.scrollX, Mouse.scrollY)
                 }
+                Mouse.Event.PRESS -> {
+                    onMousePressed(mouseX, mouseY)
+                }
                 else -> {
                     /** Not implemented, just skip **/
                 }
             }
         }
 
-        guiContainer?.render(time)
-    }
-
-    private fun applyGuiProjection() {
-        GlUtils.glMatrixMode(GlUtils.PROJECTION)
-        GlUtils.glLoadIdentity()
-        GlUtils.glOrtho(
-            0.0,
-            this.scaledResolution.scaledWidth.toDouble(),
-            this.scaledResolution.scaledHeight.toDouble(),
-            0.0,
-            0.2,
-            1000.0
-        )
-        GlUtils.glMatrixMode(GlUtils.MODELVIEW)
-        GlUtils.glLoadIdentity()
-        GlUtils.glTranslatef(0f, 0f, -100f)
+        renderManager.renderGui(this.scaledResolution, guiContainer)
     }
 }

@@ -1,11 +1,9 @@
-package com.harper.spacewar.main
+package com.harper.spacewar.main.scene
 
 import com.harper.spacewar.logging.Logger
-import com.harper.spacewar.main.scene.Scene
+import com.harper.spacewar.utils.vecFromEuler
 import org.joml.Matrix4f
 import org.joml.Vector3f
-import kotlin.math.cos
-import kotlin.math.sin
 
 class Camera(private val scene: Scene, private val fov: Float) {
     private val logger: Logger = Logger.getLogger<Camera>()
@@ -16,17 +14,13 @@ class Camera(private val scene: Scene, private val fov: Float) {
     val view: Matrix4f
         get() = viewMatrix
 
-    val lookVec: Vector3f
-        get() {
-            val f = cos(-yaw / 180f * Math.PI - Math.PI)
-            val f1 = sin(-yaw / 180f * Math.PI - Math.PI)
-            val f2 = -cos(-pitch / 180f * Math.PI)
-            val f3 = sin(-pitch / 180f * Math.PI)
-            return Vector3f((f1 * f2).toFloat(), f3.toFloat(), (f * f2).toFloat())
-        }
-
     var position: Vector3f = Vector3f(0f)
         private set
+
+    val lookVec: Vector3f
+        get() = vecFromEuler(this.yaw, this.pitch)
+
+    val upVector: Vector3f = UP_VECTOR
 
     private val ratio: Float
         get() {
@@ -39,24 +33,22 @@ class Camera(private val scene: Scene, private val fov: Float) {
     private var projectionMatrix = Matrix4f()
     private var viewMatrix = Matrix4f()
 
-    private var pitch: Float = 0f
     private var yaw: Float = 0f
+    private var pitch: Float = 0f
 
-    fun update(time: Float) {
+    fun update() {
         this.projectionMatrix.identity()
         this.projectionMatrix.setPerspective(fov, ratio, 0.1f, 1000000f)
 
         val cameraDistance = this.position.distance(this.lookAt)
         val cameraPosition = Vector3f(
-            -lookVec.x * cameraDistance + this.lookAt.x,
-            -lookVec.y * cameraDistance + this.lookAt.y,
-            -lookVec.z * cameraDistance + this.lookAt.z
+            -this.lookVec.x * cameraDistance + this.lookAt.x,
+            -this.lookVec.y * cameraDistance + this.lookAt.y,
+            -this.lookVec.z * cameraDistance + this.lookAt.z
         )
 
-        logger.debug("Camera pos: $cameraPosition")
-
         this.viewMatrix.identity()
-        this.viewMatrix.lookAt(cameraPosition, this.lookAt, UP_VECTOR)
+        this.viewMatrix.lookAt(cameraPosition, this.lookAt, upVector)
     }
 
     fun setPosition(x: Float, y: Float, z: Float) {

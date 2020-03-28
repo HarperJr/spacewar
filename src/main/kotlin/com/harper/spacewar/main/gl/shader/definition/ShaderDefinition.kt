@@ -1,9 +1,7 @@
 package com.harper.spacewar.main.gl.shader.definition
 
 import com.harper.spacewar.main.gl.shader.Shader
-import com.harper.spacewar.main.gl.shader.impl.GuiShader
-import com.harper.spacewar.main.gl.shader.impl.ModelShader
-import com.harper.spacewar.main.gl.shader.impl.OutlineShader
+import com.harper.spacewar.main.gl.shader.impl.*
 import kotlin.reflect.full.primaryConstructor
 
 sealed class ShaderDefinition(val name: String) {
@@ -26,13 +24,13 @@ object ModelShaderDefinition : ShaderDefinition("Model") {
     }
 }
 
-object GuiShaderDefinition : ShaderDefinition("View") {
-    override val sourceFolder: String = "view/"
+object SpriteShaderDefinition : ShaderDefinition("Sprite") {
+    override val sourceFolder: String = "sprite/"
     override val scripts: List<ShaderScript>
         get() = listOf(script<VertexShader>(), script<FragmentShader>())
 
     override fun inflateShader(shaderProgram: Int): Shader {
-        return GuiShader(shaderProgram)
+        return SpriteShader(shaderProgram)
     }
 }
 
@@ -43,5 +41,25 @@ object OutlineShaderDefinition : ShaderDefinition("Outline") {
 
     override fun inflateShader(shaderProgram: Int): Shader {
         return OutlineShader(shaderProgram)
+    }
+}
+
+object BloomShaderDefinition : ShaderDefinition("Bloom") {
+    override val sourceFolder: String = "bloom/"
+    override val scripts: List<ShaderScript>
+        get() = listOf(script<VertexShader>(), script<FragmentShader>())
+
+    override fun inflateShader(shaderProgram: Int): Shader {
+        return BloomShader(shaderProgram)
+    }
+}
+
+object GuiShaderDefinition : ShaderDefinition("Gui") {
+    override val sourceFolder: String = "gui/"
+    override val scripts: List<ShaderScript>
+        get() = listOf(script<VertexShader>(), script<FragmentShader>())
+
+    override fun inflateShader(shaderProgram: Int): Shader {
+        return GuiShader(shaderProgram)
     }
 }

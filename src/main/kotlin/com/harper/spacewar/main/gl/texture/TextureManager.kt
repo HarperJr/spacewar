@@ -22,7 +22,7 @@ class TextureManager {
                 textureImage = ImageIO.read(fileProvider.provideFile(textureName)),
                 texture = GlUtils.glGenTextures(),
                 type = type
-            )
+            ).also { this@TextureManager.textures[textureName] = it }
         }.getOrDefault(createUndefinedTexture())
     }
 

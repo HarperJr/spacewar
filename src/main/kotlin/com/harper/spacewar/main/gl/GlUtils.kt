@@ -2,7 +2,9 @@ package com.harper.spacewar.main.gl
 
 import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL13
 import org.lwjgl.opengl.GL15
+import org.lwjgl.opengl.GL30
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 
@@ -20,6 +22,8 @@ object GlUtils {
     const val COLOR_DEPTH_BUFFER_BIT = GL11.GL_COLOR_BUFFER_BIT or GL11.GL_DEPTH_BUFFER_BIT
 
     const val TEXTURE_2D = GL11.GL_TEXTURE_2D
+    const val TEXTURE_0 = GL13.GL_TEXTURE0
+
     const val DEPTH_TEST = GL11.GL_DEPTH_TEST
     const val COLOR = GL11.GL_COLOR
 
@@ -196,5 +200,36 @@ object GlUtils {
 
     fun glLineWidth(width: Float) {
         GL11.glLineWidth(width)
+    }
+
+    fun glActiveTexture(tex: Int) {
+        GL13.glActiveTexture(tex)
+    }
+
+    fun glClientActiveTexture(tex: Int) {
+        GL13.glClientActiveTexture(tex)
+    }
+
+    fun glVertexAttribPointer(index: Int, size: Int, type: Int, normalized: Boolean, stride: Int, pointer: Long) {
+        GL30.glVertexAttribPointer(index, size, type, normalized, stride, pointer)
+    }
+
+    fun glVertexAttribPointer(
+        index: Int,
+        size: Int,
+        type: Int,
+        normalized: Boolean,
+        stride: Int,
+        byteBuffer: ByteBuffer
+    ) {
+        GL30.glVertexAttribPointer(index, size, type, normalized, stride, byteBuffer)
+    }
+
+    fun glEnableVertexAttribArray(index: Int) {
+        GL30.glEnableVertexAttribArray(index)
+    }
+
+    fun glDisableVertexAttribArray(index: Int) {
+        GL30.glDisableVertexAttribArray(index)
     }
 }

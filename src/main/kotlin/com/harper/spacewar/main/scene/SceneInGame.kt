@@ -2,15 +2,13 @@ package com.harper.spacewar.main.scene
 
 import com.harper.spacewar.controls.Mouse
 import com.harper.spacewar.display.Key
-import com.harper.spacewar.main.Camera
 import com.harper.spacewar.main.Spacewar
 import com.harper.spacewar.main.SpacewarController
-import com.harper.spacewar.main.entity.EntityEnemy
-import com.harper.spacewar.main.entity.EntityPlayer
+import com.harper.spacewar.main.entity.impl.EntityEnemy
+import com.harper.spacewar.main.entity.impl.EntityPlayer
 import com.harper.spacewar.main.gui.impl.GuiInGame
 import com.harper.spacewar.main.gui.impl.GuiInGameMenu
 import org.joml.Random
-import org.joml.Vector3f
 import kotlin.math.max
 import kotlin.math.min
 
@@ -94,6 +92,10 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
             this.entityPlayer.accelerate = false
     }
 
+    override fun onMousePressed(x: Float, y: Float) {
+        this.entityPlayer.onMousePressed()
+    }
+
     fun onContinueBtnClicked() {
         switchPausedState()
     }
@@ -109,7 +111,7 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
     private fun spawnEnemy() {
         val playerPos = this.entityPlayer.position
         val entityEnemy = addEntity(
-            EntityEnemy(this),
+            EntityEnemy(this, 2f, EntityEnemy.Type.COMMON),
             playerPos.x + 1000 - random.nextInt(500),
             playerPos.y + 1000 - random.nextInt(500),
             playerPos.z + 1000 - random.nextInt(500)
@@ -119,25 +121,26 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
     }
 
     private fun updateCameraControls(time: Float) {
-        val adjustedXPos = (Mouse.xPos - this.spacewar.displayWidth / 2f) / this.spacewar.displayWidth * 1000f
-        val adjustedYPos = (Mouse.yPos - this.spacewar.displayHeight / 2f) / this.spacewar.displayHeight * 1000f
-        val deltaYaw = ((adjustedXPos - prevMousePosX) * time) * MOUSE_SENSITIVITY
-        val deltaPitch = ((adjustedYPos - prevMousePosY) * time) * MOUSE_SENSITIVITY
+        val mouseXPos = (Mouse.xPos - this.spacewar.displayWidth / 2f) / this.spacewar.displayWidth
+        val mouseYPos = (Mouse.yPos - this.spacewar.displayHeight / 2f) / this.spacewar.displayHeight
+        val deltaYaw = ((mouseXPos - prevMousePosX) * time) * MOUSE_SENSITIVITY * 1000f
+        val deltaPitch = ((mouseYPos - prevMousePosY) * time) * MOUSE_SENSITIVITY * 1000f
         this.cameraRotYaw = (this.cameraRotYaw - deltaYaw) % 360f
         this.cameraRotPitch = (this.cameraRotPitch + deltaPitch) % 360f
 
-        this.prevMousePosX = adjustedXPos
-        this.prevMousePosY = adjustedYPos
+        if (this.cameraRotPitch > 90f)
+            this.cameraRotPitch = 90f
+
+        if (this.cameraRotPitch < -90f)
+            this.cameraRotPitch = -90f
+
+        this.prevMousePosX = mouseXPos
+        this.prevMousePosY = mouseYPos
     }
 
     private fun updateCamera() {
+        val entityCenterPos = entityPlayer.center
         val entityBounds = entityPlayer.getBounds()
-        val entityCenterPos = Vector3f(
-            (entityBounds.minX + entityBounds.maxX) / 2f,
-            (entityBounds.minY + entityBounds.maxY) / 2f,
-            (entityBounds.minZ + entityBounds.maxZ) / 2f
-        )
-
         this.camera.apply {
             setRotation(this@SceneInGame.cameraRotYaw, this@SceneInGame.cameraRotPitch)
             setLookAt(entityCenterPos.x, entityCenterPos.y, entityCenterPos.z)
@@ -159,9 +162,9 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
 
     companion object {
         private const val MIN_SCROLL_FACTOR = 2f
-        private const val MAX_SCROLL_FACTOR = 3f
+        private const val MAX_SCROLL_FACTOR = 5f
         private const val MOUSE_SENSITIVITY = 0.1f
         private const val MAX_ENEMIES_COUNT = 10
-        private const val ENEMY_SPAWN_THRESHOLD_MILLIS = 5000
+        private const val ENEMY_SPAWN_THRESHOLD_MILLIS = 3000
     }
 }

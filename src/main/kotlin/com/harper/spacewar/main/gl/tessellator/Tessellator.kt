@@ -5,7 +5,7 @@ import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.buffer.BufferBuilder
 import com.harper.spacewar.main.gl.buffer.VertexElement
 import com.harper.spacewar.main.gl.buffer.VertexFormat
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL13
 import java.nio.ByteBuffer
 
 class Tessellator(bufferCapacity: Int) {
@@ -27,39 +27,49 @@ class Tessellator(bufferCapacity: Int) {
                     this.bufferBuilder.rawByteBuffer.position(vertexFormat.getOffset(index)) as ByteBuffer
                 when (vertexElement.type) {
                     VertexElement.Type.POSITION_3F -> {
-                        GlUtils.glVertexPointer(
+                        GlUtils.glVertexAttribPointer(
+                            0,
                             vertexElement.count,
                             vertexElement.format.glPointer,
+                            false,
                             vertexFormat.nextOffset,
                             vertexElementBuffer
                         )
-                        GlUtils.glEnableClientState(GL11.GL_VERTEX_ARRAY)
+                        GlUtils.glEnableVertexAttribArray(0)
                     }
                     VertexElement.Type.TEX_2F -> {
-                        GlUtils.glTexCoordPointer(
+                        GlUtils.glVertexAttribPointer(
+                            1,
                             vertexElement.count,
                             vertexElement.format.glPointer,
+                            false,
                             vertexFormat.nextOffset,
                             vertexElementBuffer
                         )
-                        GlUtils.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY)
-                    }
-                    VertexElement.Type.COLOR_4B -> {
-                        GlUtils.glColorPointer(
-                            vertexElement.count,
-                            vertexElement.format.glPointer,
-                            vertexFormat.nextOffset,
-                            vertexElementBuffer
-                        )
-                        GlUtils.glEnableClientState(GL11.GL_COLOR_ARRAY)
+                        GlUtils.glEnableVertexAttribArray(1)
+                        GlUtils.glClientActiveTexture(GL13.GL_TEXTURE0)
                     }
                     VertexElement.Type.NORMAL_3B -> {
-                        GlUtils.glNormalPointer(
+                        GlUtils.glVertexAttribPointer(
+                            2,
+                            vertexElement.count,
                             vertexElement.format.glPointer,
+                            true,
                             vertexFormat.nextOffset,
                             vertexElementBuffer
                         )
-                        GlUtils.glEnableClientState(GL11.GL_NORMAL_ARRAY)
+                        GlUtils.glEnableVertexAttribArray(2)
+                    }
+                    VertexElement.Type.COLOR_4B -> {
+                        GlUtils.glVertexAttribPointer(
+                            3,
+                            vertexElement.count,
+                            vertexElement.format.glPointer,
+                            true,
+                            vertexFormat.nextOffset,
+                            vertexElementBuffer
+                        )
+                        GlUtils.glEnableVertexAttribArray(3)
                     }
                     else -> return@iterateVertexElements
                 }
@@ -70,16 +80,16 @@ class Tessellator(bufferCapacity: Int) {
             iterateVertexElements(vertexFormat) { _, vertexElement ->
                 when (vertexElement.type) {
                     VertexElement.Type.POSITION_3F -> {
-                        GlUtils.glDisableClientState(GL11.GL_VERTEX_ARRAY)
+                        GlUtils.glDisableVertexAttribArray(0)
                     }
                     VertexElement.Type.TEX_2F -> {
-                        GlUtils.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY)
-                    }
-                    VertexElement.Type.COLOR_4B -> {
-                        GlUtils.glDisableClientState(GL11.GL_COLOR_ARRAY)
+                        GlUtils.glDisableVertexAttribArray(1)
                     }
                     VertexElement.Type.NORMAL_3B -> {
-                        GlUtils.glDisableClientState(GL11.GL_NORMAL_ARRAY)
+                        GlUtils.glDisableVertexAttribArray(2)
+                    }
+                    VertexElement.Type.COLOR_4B -> {
+                        GlUtils.glDisableVertexAttribArray(3)
                     }
                     else -> return@iterateVertexElements
                 }

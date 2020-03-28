@@ -3,9 +3,8 @@ package com.harper.spacewar.main.gl.shader.impl
 import com.harper.spacewar.main.gl.shader.Shader
 import org.joml.Vector4f
 
-class OutlineShader(shaderProgram: Int) : Shader(shaderProgram) {
-    override val uniforms: List<String>
-        get() = listOf(U_COLOR)
+class BloomShader(shaderProgram: Int) : Shader(shaderProgram) {
+    override val uniforms: List<String> = listOf(U_COLOR)
 
     override fun bindAttributes() {
         attributeLocation(Shader.A_POSITION, "position")

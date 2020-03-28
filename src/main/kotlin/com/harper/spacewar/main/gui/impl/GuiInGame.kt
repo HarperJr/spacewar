@@ -1,6 +1,5 @@
 package com.harper.spacewar.main.gui.impl
 
-import com.harper.spacewar.main.Camera
 import com.harper.spacewar.main.gl.font.FontRenderer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.gui.GuiContainer
@@ -10,8 +9,10 @@ import com.harper.spacewar.main.gui.impl.element.GuiLabel
 import com.harper.spacewar.main.gui.impl.element.GuiPanel
 import com.harper.spacewar.main.gui.listener.OnAnimateCursorListener
 import com.harper.spacewar.main.gui.listener.OnAnimateLabelListener
+import com.harper.spacewar.main.scene.Camera
 import com.harper.spacewar.main.scene.SceneInGame
 import org.joml.Vector2f
+import java.text.DecimalFormat
 
 class GuiInGame(private val scene: SceneInGame, fontRenderer: FontRenderer, textureManager: TextureManager) :
     GuiContainer(fontRenderer, textureManager) {
@@ -26,12 +27,14 @@ class GuiInGame(private val scene: SceneInGame, fontRenderer: FontRenderer, text
     private val camera: Camera
         get() = scene.camera
 
+    private val decimalFormat: DecimalFormat = DecimalFormat("#.##")
+
     private var isDebugging = false
 
     override fun inflateGui(scaledWidth: Float, scaledHeight: Float) {
         addGuiElement(
             GuiHealthBar(scaledWidth / 2f, scaledHeight - 20f) {
-                return@GuiHealthBar 0.35f
+                return@GuiHealthBar scene.entityPlayer.health
             }
         )
 
@@ -70,7 +73,7 @@ class GuiInGame(private val scene: SceneInGame, fontRenderer: FontRenderer, text
             GuiLabel(4f, 16f, "undefined").apply {
                 onAnimateLabelListener = object : OnAnimateLabelListener {
                     override fun onAnimate(label: GuiLabel) {
-                        label.text = "posX: ${scene.entityPlayer.position.x}"
+                        label.text = "posX: ${decimalFormat.format(scene.entityPlayer.position.x)}"
                     }
                 }
             }
@@ -80,7 +83,7 @@ class GuiInGame(private val scene: SceneInGame, fontRenderer: FontRenderer, text
             GuiLabel(4f, 28f, "undefined").apply {
                 onAnimateLabelListener = object : OnAnimateLabelListener {
                     override fun onAnimate(label: GuiLabel) {
-                        label.text = "posY: ${scene.entityPlayer.position.y}"
+                        label.text = "posY: ${decimalFormat.format(scene.entityPlayer.position.y)}"
                     }
                 }
             }
@@ -90,7 +93,7 @@ class GuiInGame(private val scene: SceneInGame, fontRenderer: FontRenderer, text
             GuiLabel(4f, 40f, "undefined").apply {
                 onAnimateLabelListener = object : OnAnimateLabelListener {
                     override fun onAnimate(label: GuiLabel) {
-                        label.text = "posZ: ${scene.entityPlayer.position.z}"
+                        label.text = "posZ: ${decimalFormat.format(scene.entityPlayer.position.z)}"
                     }
                 }
             }
@@ -101,7 +104,7 @@ class GuiInGame(private val scene: SceneInGame, fontRenderer: FontRenderer, text
                 onAnimateLabelListener = object : OnAnimateLabelListener {
                     override fun onAnimate(label: GuiLabel) {
                         val yaw = scene.cameraRotYaw
-                        label.text = "cam Yaw: $yaw"
+                        label.text = "cam Yaw: ${decimalFormat.format(yaw)}"
                     }
                 }
             }
@@ -112,7 +115,7 @@ class GuiInGame(private val scene: SceneInGame, fontRenderer: FontRenderer, text
                 onAnimateLabelListener = object : OnAnimateLabelListener {
                     override fun onAnimate(label: GuiLabel) {
                         val pitch = scene.cameraRotPitch
-                        label.text = "cam Pitch: $pitch"
+                        label.text = "cam Pitch: ${decimalFormat.format(pitch)}"
                     }
                 }
             }

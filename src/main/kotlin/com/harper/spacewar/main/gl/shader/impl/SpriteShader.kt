@@ -2,12 +2,12 @@ package com.harper.spacewar.main.gl.shader.impl
 
 import com.harper.spacewar.main.gl.shader.Shader
 
-class GuiShader(shaderProgram: Int) : Shader(shaderProgram) {
+class SpriteShader(shaderProgram: Int) : Shader(shaderProgram) {
     override val uniforms: List<String> = listOf(U_TEXTURE)
 
     override fun bindAttributes() {
-        attributeLocation(0, "position")
-        attributeLocation(1, "uv")
+        attributeLocation(Shader.A_POSITION, "position")
+        attributeLocation(Shader.A_UV, "uv")
     }
 
     fun bindTexture(texture: Int) {
@@ -15,6 +15,7 @@ class GuiShader(shaderProgram: Int) : Shader(shaderProgram) {
     }
 
     companion object {
+        // Uniforms
         private const val U_TEXTURE = "tex"
     }
 }

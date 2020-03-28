@@ -15,13 +15,12 @@ open class Gui(private val fontRenderer: FontRenderer, val textureManager: Textu
         GlUtils.glDisable(GlUtils.TEXTURE_2D)
         GlUtils.glEnable(GlUtils.BLEND)
         GlUtils.glBlendFuncDefault()
-        GlUtils.glColor(color)
 
-        tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION) {
-            pos(left, top, 0f).completeVertex()
-            pos(right, top, 0f).completeVertex()
-            pos(right, bottom, 0f).completeVertex()
-            pos(left, bottom, 0f).completeVertex()
+        tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_COLOR) {
+            pos(left, top, 0f).color(color).completeVertex()
+            pos(right, top, 0f).color(color).completeVertex()
+            pos(right, bottom, 0f).color(color).completeVertex()
+            pos(left, bottom, 0f).color(color).completeVertex()
         }
 
         GlUtils.glDisable(GlUtils.BLEND)
@@ -38,7 +37,8 @@ open class Gui(private val fontRenderer: FontRenderer, val textureManager: Textu
 
         tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX) {
             pos(x, y + height, 0f).tex(texX / texture.width, (texY + height) / texture.height).completeVertex()
-            pos(x + width, y + height, 0f).tex((texX + width) / texture.width, (texY + height) / texture.height).completeVertex()
+            pos(x + width, y + height, 0f).tex((texX + width) / texture.width, (texY + height) / texture.height)
+                .completeVertex()
             pos(x + width, y, 0f).tex((texX + width) / texture.width, texY / texture.height).completeVertex()
             pos(x, y, 0f).tex(texX / texture.width, texY / texture.height).completeVertex()
         }

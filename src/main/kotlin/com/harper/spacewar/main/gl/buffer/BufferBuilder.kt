@@ -71,9 +71,9 @@ class BufferBuilder(capacity: Int) {
             this.vertexCount * this.vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
         when (vertexFormatElement.format) {
             VertexElement.Format.UBYTE -> {
-                rawByteBuffer.put(index + 0, (color shr 24 and 255).toByte())
+                rawByteBuffer.put(index + 0, (color shr 8 and 255).toByte())
                 rawByteBuffer.put(index + 1, (color shr 16 and 255).toByte())
-                rawByteBuffer.put(index + 2, (color shr 8 and 255).toByte())
+                rawByteBuffer.put(index + 2, (color shr 24 and 255).toByte())
                 rawByteBuffer.put(index + 3, (color and 255).toByte())
             }
             else -> return this

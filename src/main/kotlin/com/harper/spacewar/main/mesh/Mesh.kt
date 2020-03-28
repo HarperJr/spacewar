@@ -12,13 +12,10 @@ class Mesh(val name: String, val data: MeshData, val material: Material) {
         for (i in 0 until verticesCount) {
             bufferBuilder.pos(data.vertices[i * 3 + 0], data.vertices[i * 3 + 1], data.vertices[i * 3 + 2])
                 .also { bb ->
-                    if (data.hasTextures) {
+                    if (data.hasTextures)
                         bb.tex(data.getTexCoords(0)[i * 2 + 0], data.getTexCoords(0)[i * 2 + 1])
-                    }
-
-                    if (data.hasNormals) {
+                    if (data.hasNormals)
                         bb.norm(data.normals[i * 3 + 0], data.normals[i * 3 + 1], data.normals[i * 3 + 2])
-                    }
                 }.completeVertex()
         }
     }

@@ -25,8 +25,6 @@ class GuiButton(
         GlUtils.glBlendFuncDefault()
         GlUtils.glBlendSeparateDefault()
 
-        GlUtils.glColor(0xffffffff)
-
         val texture = gui.textureManager.provideTexture("gui/button.png")
         val tileHeight = texture.height / 4f
         gui.drawTexturedRect(
@@ -82,6 +80,7 @@ class GuiButton(
 
     override fun onMoved(x: Float, y: Float) {
         val adjustedXPos = if (this.centered) this.xPos - this.width / 2f else this.xPos
-        this.isHovered = x >= adjustedXPos && x <= adjustedXPos + this.width && y >= this.yPos && y <= this.yPos + this.height
+        this.isHovered = x >= adjustedXPos && x <= adjustedXPos + this.width && y >= this.yPos && y <= this.yPos +
+                this.height
     }
 }

@@ -6,7 +6,7 @@ import com.harper.spacewar.main.gl.buffer.VertexElement
 import com.harper.spacewar.main.gl.buffer.VertexFormat
 import com.harper.spacewar.main.gl.vbo.VertexBuffer
 import org.lwjgl.BufferUtils
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL13
 import java.nio.IntBuffer
 
 class MeshRenderer(private val mesh: Mesh) {
@@ -24,33 +24,41 @@ class MeshRenderer(private val mesh: Mesh) {
             iterateVertexElements(vertexFormat) { index, vertexElement ->
                 when (vertexElement.type) {
                     VertexElement.Type.POSITION_3F -> {
-                        GlUtils.glVertexPointer(
+                        GlUtils.glVertexAttribPointer(
+                            0,
                             vertexElement.count,
                             vertexElement.format.glPointer,
+                            false,
                             vertexFormat.nextOffset,
                             vertexFormat.getOffset(index).toLong()
                         )
-                        GlUtils.glEnableClientState(GL11.GL_VERTEX_ARRAY)
+                        GlUtils.glEnableVertexAttribArray(0)
                     }
                     VertexElement.Type.TEX_2F -> {
                         if (mData.hasTextures) {
-                            GlUtils.glVertexPointer(
+                            GlUtils.glVertexAttribPointer(
+                                1,
                                 vertexElement.count,
                                 vertexElement.format.glPointer,
+                                false,
                                 vertexFormat.nextOffset,
                                 vertexFormat.getOffset(index).toLong()
                             )
-                            GlUtils.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY)
+                            GlUtils.glEnableVertexAttribArray(1)
+                            GlUtils.glClientActiveTexture(GL13.GL_TEXTURE0)
                         }
                     }
                     VertexElement.Type.NORMAL_3B -> {
                         if (mData.hasNormals) {
-                            GlUtils.glNormalPointer(
+                            GlUtils.glVertexAttribPointer(
+                                2,
+                                vertexElement.count,
                                 vertexElement.format.glPointer,
+                                true,
                                 vertexFormat.nextOffset,
                                 vertexFormat.getOffset(index).toLong()
                             )
-                            GlUtils.glEnableClientState(GL11.GL_NORMAL_ARRAY)
+                            GlUtils.glEnableVertexAttribArray(2)
                         }
                     }
                     else -> {
@@ -64,15 +72,15 @@ class MeshRenderer(private val mesh: Mesh) {
             iterateVertexElements(vertexFormat) { _, vertexElement ->
                 when (vertexElement.type) {
                     VertexElement.Type.POSITION_3F -> {
-                        GlUtils.glDisableClientState(GL11.GL_VERTEX_ARRAY)
+                        GlUtils.glDisableVertexAttribArray(0)
                     }
                     VertexElement.Type.TEX_2F -> {
                         if (mData.hasTextures)
-                            GlUtils.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY)
+                            GlUtils.glDisableVertexAttribArray(1)
                     }
                     VertexElement.Type.NORMAL_3B -> {
                         if (mData.hasNormals)
-                            GlUtils.glDisableClientState(GL11.GL_NORMAL_ARRAY)
+                            GlUtils.glDisableVertexAttribArray(2)
                     }
                     else -> {
                         /** Do nothing, just pass **/

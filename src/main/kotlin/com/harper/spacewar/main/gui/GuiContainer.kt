@@ -6,13 +6,15 @@ import com.harper.spacewar.main.gl.font.FontRenderer
 import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.resolution.ScaledResolution
 
-abstract class GuiContainer(fontRenderer: FontRenderer, textureManager: TextureManager) : Gui(fontRenderer, textureManager) {
+abstract class GuiContainer(fontRenderer: FontRenderer, textureManager: TextureManager) :
+    Gui(fontRenderer, textureManager) {
     private val guiMouseListeners: MutableList<MouseListener> = mutableListOf()
     private val guiElements: MutableList<GuiElement> = mutableListOf()
 
     abstract fun inflateGui(scaledWidth: Float, scaledHeight: Float)
 
-    fun render(time: Float) {
+
+    fun render() {
         GlUtils.glEnable(GlUtils.DEPTH_TEST)
         GlUtils.glDepthFunc(GlUtils.DEPTH_ALWAYS)
         GlUtils.glEnableDepthMask()

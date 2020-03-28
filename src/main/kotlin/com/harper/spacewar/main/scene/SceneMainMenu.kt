@@ -1,10 +1,9 @@
 package com.harper.spacewar.main.scene
 
-import com.harper.spacewar.main.Camera
 import com.harper.spacewar.main.Spacewar
 import com.harper.spacewar.main.SpacewarController
 import com.harper.spacewar.main.entity.Entity
-import com.harper.spacewar.main.entity.EntitySpaceship
+import com.harper.spacewar.main.entity.impl.EntitySpaceshipStatic
 import com.harper.spacewar.main.gui.GuiContainer
 import com.harper.spacewar.main.gui.impl.GuiMainMenu
 
@@ -18,7 +17,7 @@ class SceneMainMenu(spacewar: Spacewar, private val spacewarController: Spacewar
     private var prevYaw: Float = 0f
 
     override fun createScene() {
-        this.spaceshipEntity = addEntity(EntitySpaceship(this), 0f, 0f, 0f)
+        this.spaceshipEntity = addEntity(EntitySpaceshipStatic(this), 0f, 0f, 0f)
         this.camera.apply {
             val bounds = this@SceneMainMenu.spaceshipEntity.getBounds()
             setPosition(
@@ -32,9 +31,11 @@ class SceneMainMenu(spacewar: Spacewar, private val spacewarController: Spacewar
     }
 
     override fun update(time: Float) {
-        this.prevYaw = (this.prevYaw + (this.rotYaw - this.prevYaw) * time) % 360f
-        this.spaceshipEntity.rotate(this.prevYaw, 0f)
-        this.rotYaw += 0.1f
+        this.rotYaw = (this.prevYaw + (this.rotYaw - this.prevYaw) * time * ROTATION_SPEED) % 360f
+        this.spaceshipEntity.rotate(this.rotYaw, 0f)
+
+        this.prevYaw = this.rotYaw
+        this.rotYaw += 0.05f
 
         super.update(time)
     }
@@ -49,5 +50,9 @@ class SceneMainMenu(spacewar: Spacewar, private val spacewarController: Spacewar
 
     fun onLeaveBtnClicked() {
         logger.info("Leave game btn is clicked")
+    }
+
+    companion object {
+        private const val ROTATION_SPEED = 5f
     }
 }

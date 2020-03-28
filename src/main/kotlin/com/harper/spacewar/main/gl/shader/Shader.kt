@@ -79,6 +79,10 @@ abstract class Shader(private val shaderProgram: Int) {
     }
 
     companion object {
+        const val A_POSITION = 0
+        const val A_UV = 1
+        const val A_NORMALS = 2
+
         private const val NO_PROGRAM = 0
         private const val MATRIX4_USAGE = 16
         private const val U_MODEL_MATRIX = "modelMatrix"

@@ -11,11 +11,13 @@ import com.harper.spacewar.main.gl.texture.TextureManager
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.resolution.ScaledResolutionProvider
 import com.harper.spacewar.main.resource.ResourceRegistry
+import com.harper.spacewar.main.scene.renderer.RenderManager
 
 class Spacewar : Runnable, DisplayListener {
     val textureManager: TextureManager = TextureManager()
     val fontRenderer: FontRenderer = FontRenderer(textureManager)
     val resourceRegistry: ResourceRegistry = ResourceRegistry(textureManager)
+    val renderManager: RenderManager = RenderManager(textureManager, resourceRegistry)
     val scaledResolution: ScaledResolution
         get() = scaledResolutionProvider.resolution
 
@@ -66,7 +68,7 @@ class Spacewar : Runnable, DisplayListener {
 
     override fun onInitialized() {
         GlUtils.glClearColor(0xa0efefff)
-
+        renderManager.initialize()
         spacewarController.initialize()
     }
 
