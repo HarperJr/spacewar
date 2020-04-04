@@ -1,6 +1,7 @@
 package com.harper.spacewar.main.entity.renderer
 
 import com.harper.spacewar.main.entity.Entity
+import com.harper.spacewar.main.entity.EntityLiving
 import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.buffer.VertexFormat
 import com.harper.spacewar.main.gl.shader.definition.ModelShaderDefinition
@@ -30,21 +31,25 @@ abstract class EntityRenderer<T : Entity>(private val renderManager: RenderManag
         // Draw model pass
         renderEntityShape(entity, camera, x, y, z)
 
-        // Draw AABB pass
         outlineShader.use<OutlineShader> {
             bindColor(0xff0000ff)
             bindMatrices(identityMatrix, camera.view, camera.projection)
-            drawAxisAlignedBox(entity)
-        }
 
-        for (sprite in entity.sprites)
-            renderManager.renderSprite(
-                sprite,
-                camera,
-                x + sprite.position.x,
-                y + sprite.position.y,
-                z + sprite.position.z
-            )
+            //drawAxisAlignedBox(entity)
+
+            if (entity is EntityLiving) {
+                val center = entity.center
+                val lookAt = entity.lookAt
+                Tessellator.instance.tessellate(GlUtils.DRAW_MODE_LINES, VertexFormat.POSITION) {
+                    pos(center.x, center.y, center.z).completeVertex()
+                    pos(
+                        center.x + lookAt.x * 20f,
+                        center.y + lookAt.y * 20f,
+                        center.z + lookAt.z * 20f
+                    ).completeVertex()
+                }
+            }
+        }
 
         GlUtils.glDisable(GlUtils.DEPTH_TEST)
     }

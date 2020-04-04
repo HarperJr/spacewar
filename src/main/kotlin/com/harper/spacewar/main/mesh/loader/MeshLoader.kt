@@ -11,7 +11,6 @@ import org.joml.Vector4f
 import org.lwjgl.BufferUtils
 import org.lwjgl.assimp.*
 import org.lwjgl.system.MemoryUtil
-import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 
@@ -22,24 +21,17 @@ class MeshLoader(private val textureManager: TextureManager) {
     private val fileProvider: FileProvider = FileProvider.get()
 
     fun load(meshFileName: String): List<Mesh> {
-        val meshContent = fileProvider.provideFileContent(MESHES_DIR + meshFileName)
-        val buffer = allocateMemory(meshContent)
-        val importScene = Assimp.aiImportFileFromMemory(
-            buffer,
-            Assimp.aiProcess_OptimizeMeshes or Assimp.aiProcess_FlipUVs or Assimp.aiProcess_JoinIdenticalVertices,
-            BufferUtils.createByteBuffer(1)
+        val meshFile = fileProvider.provideFile(MESHES_DIR + meshFileName)
+        val importScene = Assimp.aiImportFile(
+            meshFile.absolutePath,
+            Assimp.aiProcess_OptimizeMeshes or
+                    Assimp.aiProcess_FlipUVs or
+                    Assimp.aiProcess_JoinIdenticalVertices
         )
 
         return if (importScene != null) {
             loadMeshesFromScene(importScene)
         } else throw IllegalArgumentException("Unable to create mesh $meshFileName in cause: ${Assimp.aiGetErrorString()}")
-    }
-
-    private fun allocateMemory(bytes: ByteArray): ByteBuffer {
-        return MemoryUtil.memCalloc(bytes.size).apply {
-            put(bytes)
-            position(0)
-        }
     }
 
     private fun loadMeshesFromScene(scene: AIScene): List<Mesh> {
@@ -50,7 +42,7 @@ class MeshLoader(private val textureManager: TextureManager) {
             val meshes = mutableListOf<Mesh>()
             while (aiMeshes.hasRemaining()) {
                 val aiMesh = AIMesh.create(aiMeshes.get())
-                val material = materials[aiMesh.mMaterialIndex()]
+                val material = materials[aiMesh.mMaterialIndex() - 1]
 
                 val vertices = unpackVertices(aiMesh)
                 val texCoords = unpackTexCoords(aiMesh, material.textures.size)
@@ -117,9 +109,10 @@ class MeshLoader(private val textureManager: TextureManager) {
                 while (texCoordBuffer.hasRemaining()) {
                     val texCoord = texCoordBuffer.get()
                     texCoords[i * 2 + 0] = texCoord.x()
-                    texCoords[i * 2 + 0] = texCoord.y()
+                    texCoords[i * 2 + 1] = texCoord.y()
                     i++
                 }
+                texCoordList.add(texCoords)
             }
         }
 
@@ -145,30 +138,32 @@ class MeshLoader(private val textureManager: TextureManager) {
 
     private fun loadMaterials(scene: AIScene): List<Material> {
         val numMaterials = scene.mNumMaterials()
-        val materialsPointerBuffer = scene.mMaterials()
-        return if (materialsPointerBuffer != null) {
-            (0 until numMaterials).map { i ->
-                val aiMaterial = AIMaterial.create(materialsPointerBuffer.get(i))
-                val aiName = AIString.calloc()
-                Assimp.aiGetMaterialString(aiMaterial, Assimp.AI_MATKEY_NAME, Assimp.AI_AISTRING, 0, aiName)
+        val materialsPointerBuffer = scene.mMaterials() ?: return emptyList()
 
-                val colors = mutableListOf<Color>()
-                for (cComponent in ColorComponent.values()) {
-                    val color = getColor(aiMaterial, cComponent.type, cComponent.aiType)
-                    if (color != null)
-                        colors.add(color)
-                }
+        val materials = mutableListOf<Material>()
+        for (i in 0 until numMaterials) {
+            val aiMaterial = AIMaterial.create(materialsPointerBuffer.get(i))
+            val aiName = AIString.calloc()
+            Assimp.aiGetMaterialString(aiMaterial, Assimp.AI_MATKEY_NAME, Assimp.AI_AISTRING, 0, aiName)
 
-                val textures = mutableListOf<Texture>()
-                for (tComponent in TextureComponent.values()) {
-                    val texture = getTexture(aiMaterial, tComponent.type, tComponent.aiType)
-                    if (texture != null)
-                        textures.add(texture)
-                }
-
-                Material(aiName.dataString(), colors, textures)
+            val colors = mutableListOf<Color>()
+            for (cComponent in ColorComponent.values()) {
+                val color = getColor(aiMaterial, cComponent.type, cComponent.aiType)
+                if (color != null)
+                    colors.add(color)
             }
-        } else emptyList()
+
+            val textures = mutableListOf<Material.MaterialTexture>()
+            for (tComponent in TextureComponent.values()) {
+                val texture = getTexture(aiMaterial, tComponent.type, tComponent.aiType)
+                if (texture != null)
+                    textures.add(texture)
+            }
+
+            materials.add(Material(aiName.dataString(), colors, textures))
+        }
+
+        return materials
     }
 
     private fun getColor(material: AIMaterial, type: Color.Type, aiType: String): Color? {
@@ -180,14 +175,25 @@ class MeshLoader(private val textureManager: TextureManager) {
         }
     }
 
-    private fun getTexture(material: AIMaterial, type: Texture.Type, aiType: Int): Texture? {
-        val aiTexPath = with(AIString.calloc()) {
-            Assimp.aiGetMaterialTexture(material, aiType, 0, this, null as IntBuffer?, null, null, null, null, null)
-            this.dataString()
-        }
+    private fun getTexture(material: AIMaterial, type: Texture.Type, aiType: Int): Material.MaterialTexture? {
+        val texturePathPtr = AIString.calloc()
+        Assimp.aiGetMaterialTexture(
+            material,
+            aiType,
+            0,
+            texturePathPtr,
+            null as IntBuffer?,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
 
-        val texture = textureManager.provideTexture(aiTexPath, type)
-        return if (texture != textureManager.undefinedTexture) texture else null
+        val texturePath = texturePathPtr.dataString()
+        return if (texturePath.isNotEmpty()) {
+            Material.MaterialTexture(texturePath, type)
+        } else null
     }
 
     companion object {

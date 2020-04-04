@@ -45,7 +45,6 @@ class MeshRenderer(private val mesh: Mesh) {
                                 vertexFormat.getOffset(index).toLong()
                             )
                             GlUtils.glEnableVertexAttribArray(1)
-                            GlUtils.glClientActiveTexture(GL13.GL_TEXTURE0)
                         }
                     }
                     VertexElement.Type.NORMAL_3B -> {

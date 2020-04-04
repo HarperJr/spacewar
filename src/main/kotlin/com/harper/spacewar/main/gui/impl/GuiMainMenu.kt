@@ -26,27 +26,16 @@ class GuiMainMenu(private val scene: SceneMainMenu, fontRenderer: FontRenderer, 
 
         addGuiElement(
             GuiButton(
-                LOAD_BTN_ID,
-                offsetRight,
-                scaledHeight / 2f,
-                140f,
-                16f,
-                "Load the game"
-            ).also { it.onClickListener = onClickListener }
-        )
-
-        addGuiElement(
-            GuiButton(
                 LEAVE_BTN_ID,
                 offsetRight,
-                scaledHeight / 2f + 32f,
+                scaledHeight / 2f,
                 140f,
                 16f,
                 "Leave the game"
             ).also { it.onClickListener = onClickListener }
         )
 
-        addGuiElement(GuiLabel(4f, scaledHeight - 12f, "Spacewar v 0.1 dev", false))
+        addGuiElement(GuiLabel(4f, scaledHeight - 12f, "Spacewar v 0.2 alpha", false))
         addGuiElement(GuiLabel(scaledWidth / 2f, 16f, "SPACEWAR THE GAME", true, 0xffffffff, 2f))
     }
 
@@ -54,7 +43,6 @@ class GuiMainMenu(private val scene: SceneMainMenu, fontRenderer: FontRenderer, 
         override fun onClicked(button: GuiButton, x: Float, y: Float) {
             when (button.id) {
                 ENTER_BTN_ID -> scene.onEnterBtnClicked()
-                LOAD_BTN_ID -> scene.onLoadBtnClicked()
                 LEAVE_BTN_ID -> scene.onLeaveBtnClicked()
             }
         }

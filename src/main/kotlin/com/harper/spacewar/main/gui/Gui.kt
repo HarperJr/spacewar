@@ -1,5 +1,6 @@
 package com.harper.spacewar.main.gui
 
+import com.harper.spacewar.Color
 import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.buffer.VertexFormat
 import com.harper.spacewar.main.gl.font.FontRenderer
@@ -28,19 +29,25 @@ open class Gui(private val fontRenderer: FontRenderer, val textureManager: Textu
         GlUtils.glPushMatrix()
     }
 
-    fun drawTexturedRect(texture: Texture, x: Float, y: Float, width: Float, height: Float, texX: Float, texY: Float) {
+    fun drawTexturedRect(texture: Texture, x: Float, y: Float, width: Float, height: Float, texX: Float, texY: Float, color: Long = Color.WHITE) {
         GlUtils.glPopMatrix()
         GlUtils.glEnable(GlUtils.TEXTURE_2D)
         GlUtils.glBindTexture(texture.glTexture)
         GlUtils.glEnable(GlUtils.BLEND)
         GlUtils.glColor(0xffffffff)
 
-        tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX) {
-            pos(x, y + height, 0f).tex(texX / texture.width, (texY + height) / texture.height).completeVertex()
+        tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX_COLOR) {
+            pos(x, y + height, 0f).tex(texX / texture.width, (texY + height) / texture.height)
+                .color(color).completeVertex()
+
             pos(x + width, y + height, 0f).tex((texX + width) / texture.width, (texY + height) / texture.height)
-                .completeVertex()
-            pos(x + width, y, 0f).tex((texX + width) / texture.width, texY / texture.height).completeVertex()
-            pos(x, y, 0f).tex(texX / texture.width, texY / texture.height).completeVertex()
+                .color(color).completeVertex()
+
+            pos(x + width, y, 0f).tex((texX + width) / texture.width, texY / texture.height)
+                .color(color).completeVertex()
+
+            pos(x, y, 0f).tex(texX / texture.width, texY / texture.height)
+                .color(color).completeVertex()
         }
 
         GlUtils.glDisable(GlUtils.BLEND)

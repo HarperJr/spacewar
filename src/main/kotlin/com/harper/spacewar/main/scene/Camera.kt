@@ -1,6 +1,7 @@
 package com.harper.spacewar.main.scene
 
 import com.harper.spacewar.logging.Logger
+import com.harper.spacewar.utils.orthoNormalize
 import com.harper.spacewar.utils.vecFromEuler
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -13,9 +14,6 @@ class Camera(private val scene: Scene, private val fov: Float) {
 
     val view: Matrix4f
         get() = viewMatrix
-
-    var position: Vector3f = Vector3f(0f)
-        private set
 
     val lookVec: Vector3f
         get() = vecFromEuler(this.yaw, this.pitch)
@@ -36,6 +34,8 @@ class Camera(private val scene: Scene, private val fov: Float) {
     private var yaw: Float = 0f
     private var pitch: Float = 0f
 
+    private val position: Vector3f = Vector3f(0f)
+
     fun update() {
         this.projectionMatrix.identity()
         this.projectionMatrix.setPerspective(fov, ratio, 0.1f, 1000000f)
@@ -48,7 +48,7 @@ class Camera(private val scene: Scene, private val fov: Float) {
         )
 
         this.viewMatrix.identity()
-        this.viewMatrix.lookAt(cameraPosition, this.lookAt, upVector)
+        this.viewMatrix.lookAt(cameraPosition, this.lookAt, orthoNormalize(this.upVector, this.lookVec))
     }
 
     fun setPosition(x: Float, y: Float, z: Float) {

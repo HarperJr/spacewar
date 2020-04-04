@@ -7,6 +7,7 @@ import com.harper.spacewar.logging.Logger
 import com.harper.spacewar.main.Spacewar
 import com.harper.spacewar.main.entity.Entity
 import com.harper.spacewar.main.entity.EntityLiving
+import com.harper.spacewar.main.entity.particle.EntityParticle
 import com.harper.spacewar.main.gui.GuiContainer
 import com.harper.spacewar.main.resolution.ScaledResolution
 import com.harper.spacewar.main.scene.renderer.RenderManager
@@ -20,7 +21,10 @@ abstract class Scene(protected val spacewar: Spacewar) {
 
     protected val logger = Logger.getLogger<SceneMainMenu>()
 
+    protected var needsUpdates: Boolean = true
+
     private val entities: MutableMap<Int, Entity> = mutableMapOf()
+    private val entitiesToBeAdded: MutableMap<Int, Entity> = mutableMapOf()
     private val entitiesToBeRemoved: MutableMap<Int, Entity> = mutableMapOf()
     private var guiContainer: GuiContainer? = null
     private var needsToUpdateGui: Boolean = true
@@ -29,6 +33,10 @@ abstract class Scene(protected val spacewar: Spacewar) {
     abstract val camera: Camera
 
     abstract fun createScene()
+
+    open fun onEntityWasKilled(entity: EntityLiving) {
+        /** No implementation **/
+    }
 
     open fun onKeyPressed(key: Key) {
         /** No implementation **/
@@ -64,25 +72,34 @@ abstract class Scene(protected val spacewar: Spacewar) {
         this.camera.update()
 
         for ((_, entity) in this.entities) {
-            if (entity is EntityLiving && entity.isDead)
-                entitiesToBeRemoved[entity.id] = entity
+            if (this.needsUpdates) {
+                if (entity is EntityLiving && entity.isDead) {
+                    this.removeEntity(entity)
+                } else entity.update(time)
 
-            entity.update(time)
-            renderManager.renderEntity(
-                entity,
-                this.camera,
-                entity.position.x,
-                entity.position.y,
-                entity.position.z
-            )
+                if (entity is EntityParticle && entity.isTimeLapsed) {
+                    this.entitiesToBeRemoved[entity.id] = entity
+                }
+            }
+            renderManager.renderEntity(entity, this.camera)
         }
-
-        for ((key, _) in this.entitiesToBeRemoved)
-            this.entities.remove(key)
-        this.entitiesToBeRemoved.clear()
 
         if (this.guiContainer != null)
             renderGui(time)
+
+        if (this.needsUpdates) {
+            for ((key, entity) in this.entitiesToBeAdded) {
+                this.entities[key] = entity
+            }
+            this.entitiesToBeAdded.clear()
+
+            for ((key, entity) in this.entitiesToBeRemoved) {
+                if (entity is EntityLiving)
+                    onEntityWasKilled(entity)
+                this.entities.remove(key)
+            }
+            this.entitiesToBeRemoved.clear()
+        }
 
         while (Keyboard.next()) {
             val event = Keyboard.event()
@@ -97,29 +114,46 @@ abstract class Scene(protected val spacewar: Spacewar) {
         }
     }
 
-    fun destroy() {
-        this.nextEntityId = 0
+    open fun destroy() {
         this.entities.clear()
+        this.nextEntityId = 0
         this.guiContainer = null
     }
 
     fun addEntity(entity: Entity, x: Float, y: Float, z: Float): Entity {
-        this.entities[this.nextEntityId] = entity
+        this.entitiesToBeAdded[this.nextEntityId] = entity
             .also {
-                it.id = this.nextEntityId
-                it.create(x, y, z)
+                it.create(this.nextEntityId, x, y, z)
             }
         this.nextEntityId++
         return entity
     }
 
+    fun removeEntity(entity: Entity) {
+        this.entitiesToBeRemoved[entity.id] = entity
+    }
+
+    fun getEntities(): Collection<Entity> = this.entities.values
+
     fun getEntitiesCollidedExcept(entity: Entity, exceptEntities: List<Entity>): List<Entity> {
         val collidedEntities = mutableListOf<Entity>()
         for ((_, e) in this.entities) {
-            if (e == entity || exceptEntities.contains(e) ||
+            if (exceptEntities.contains(e) ||
                 this.entitiesToBeRemoved.containsKey(e.id)
             ) continue
-            if (e.isCollidedWidth(entity))
+
+            val axisAlignedBB = e.getBounds()
+            val collided = when (entity) {
+                is EntityLiving ->
+                    axisAlignedBB.testPoint(
+                        entity.center.x + entity.lookAt.x,
+                        entity.center.y + entity.lookAt.y,
+                        entity.center.z + entity.lookAt.z
+                    )
+                else -> entity.getBounds().testAABB(e.getBounds())
+            }
+
+            if (collided)
                 collidedEntities.add(e)
         }
         return collidedEntities

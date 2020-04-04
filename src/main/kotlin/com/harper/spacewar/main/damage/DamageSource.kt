@@ -8,7 +8,7 @@ interface DamageSource {
     companion object {
         val MISSILE = object : DamageSource {
             override fun onDamage(entity: EntityLiving) {
-                entity.health -= 0.2f
+                entity.addHealth(-0.5f)
             }
         }
     }

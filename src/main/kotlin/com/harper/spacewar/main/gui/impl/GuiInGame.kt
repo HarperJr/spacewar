@@ -34,7 +34,17 @@ class GuiInGame(private val scene: SceneInGame, fontRenderer: FontRenderer, text
     override fun inflateGui(scaledWidth: Float, scaledHeight: Float) {
         addGuiElement(
             GuiHealthBar(scaledWidth / 2f, scaledHeight - 20f) {
-                return@GuiHealthBar scene.entityPlayer.health
+                return@GuiHealthBar scene.entityPlayer.healthPercent
+            }
+        )
+
+        addGuiElement(
+            GuiLabel(scaledWidth / 2f, 4f, "undefined", true).also {
+                it.onAnimateLabelListener = object : OnAnimateLabelListener {
+                    override fun onAnimate(label: GuiLabel) {
+                        label.text = "Killed score: ${this@GuiInGame.scene.entityPlayerPoints}"
+                    }
+                }
             }
         )
 

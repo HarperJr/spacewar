@@ -2,50 +2,53 @@ package com.harper.spacewar.main.entity.impl
 
 import com.harper.spacewar.main.damage.DamageSource
 import com.harper.spacewar.main.entity.EntityLiving
-import com.harper.spacewar.main.scene.SceneInGame
-import com.harper.spacewar.main.sprite.Sprite
+import com.harper.spacewar.main.scene.Scene
 import org.joml.AABBf
 import org.joml.Vector3f
 
-class EntityMissile(private val sceneInGame: SceneInGame, private val producerEntity: EntityLiving) :
+class EntityMissile(private val sceneInGame: Scene, val producerEntity: EntityLiving) :
     EntityLiving(sceneInGame, 1f) {
+    override val movementSpeed: Float = 50f
     override val rotationSpeed: Float = 10f
 
-    override val sprites: List<Sprite> = emptyList()
-
-    private var velocityVec: Vector3f = Vector3f(producerEntity.lookAt)
+    private val currentTimeMillis: Long
+        get() = System.currentTimeMillis()
+    private var createdTimeMillis: Long = currentTimeMillis
 
     init {
-        super.axisAlignedBox = AABBf(0f, 0f, 0f, 2f, 2f, 5f)
+        super.axisAlignedBox = AABBf(0f, 0f, 0f, 0.5f, 0.5f, 0.5f)
     }
 
-    override fun create(x: Float, y: Float, z: Float) {
-        super.create(x, y, z)
+    override fun create(id: Int, x: Float, y: Float, z: Float) {
+        super.create(id, x, y, z)
+        this.createdTimeMillis = this.currentTimeMillis
+
+        val rightVec = this.position.sub(this.producerEntity.position, Vector3f())
+        super.lookAt.set(
+            producerEntity.lookAt.x * MAX_LIFE_TIME_MILLIS - rightVec.x,
+            producerEntity.lookAt.y * MAX_LIFE_TIME_MILLIS - rightVec.y,
+            producerEntity.lookAt.z * MAX_LIFE_TIME_MILLIS - rightVec.z
+        )
     }
 
     override fun update(time: Float) {
-        if (!this.sceneInGame.isPaused) {
-            super.update(time)
+        super.update(time)
+        super.lookAt(time, this.lookAt)
 
-            super.lookAt(time, this.velocityVec)
-            super.move(
-                velocityVec.x * SPEED,
-                velocityVec.y * SPEED,
-                velocityVec.z * SPEED
-            )
-
-            val entities = this.sceneInGame.getEntitiesCollidedExcept(this, listOf(this.producerEntity, this))
-            if (entities.isNotEmpty()) {
-                val entityHit = entities.first()
-                if (entityHit is EntityLiving && entityHit != producerEntity) {
-                    entityHit.receiveDamageFromEntity(this, DamageSource.MISSILE)
-                    this.isDead = true
-                }
+        val collidedEntities = this.sceneInGame.getEntitiesCollidedExcept(this, listOf(this.producerEntity, this))
+        if (collidedEntities.isNotEmpty()) {
+            val entityHit = collidedEntities.first()
+            if (entityHit is EntityLiving) {
+                entityHit.receiveDamageFromEntity(this, DamageSource.MISSILE)
+                this.isDead = true
             }
         }
+
+        if (this.createdTimeMillis + MAX_LIFE_TIME_MILLIS <= this.currentTimeMillis)
+            this.isDead = true
     }
 
     companion object {
-        private const val SPEED = 100f
+        private const val MAX_LIFE_TIME_MILLIS = 5000L
     }
 }

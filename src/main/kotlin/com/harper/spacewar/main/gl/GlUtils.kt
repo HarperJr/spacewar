@@ -9,9 +9,6 @@ import java.nio.ByteBuffer
 import java.nio.IntBuffer
 
 object GlUtils {
-    const val PROJECTION = GL11.GL_PROJECTION
-    const val MODELVIEW = GL11.GL_MODELVIEW
-
     const val DRAW_MODE_TRIANGLES = GL11.GL_TRIANGLES
     const val DRAW_MODE_TRIANGLES_FAN = GL11.GL_TRIANGLE_FAN
     const val DRAW_MODE_LINE_STRIP = GL11.GL_LINE_STRIP
@@ -35,18 +32,6 @@ object GlUtils {
     const val ARRAY_BUFFER = GL15.GL_ARRAY_BUFFER
 
     private val array4Matrix = FloatArray(16)
-
-    fun glTranslatef(x: Float, y: Float, z: Float) {
-        GL11.glTranslatef(x, y, z)
-    }
-
-    fun glRotatef(a: Float, x: Float, y: Float, z: Float) {
-        GL11.glRotatef(a, x, y, z)
-    }
-
-    fun glScalef(x: Float, y: Float, z: Float) {
-        GL11.glScalef(x, y, z)
-    }
 
     fun glColor(color: Long) {
         GL11.glColor4f(
@@ -78,46 +63,6 @@ object GlUtils {
         GL15.glDrawElements(mode, pointer)
     }
 
-    fun glEnableClientState(state: Int) {
-        GL15.glEnableClientState(state)
-    }
-
-    fun glDisableClientState(state: Int) {
-        GL15.glDisableClientState(state)
-    }
-
-    fun glVertexPointer(size: Int, type: Int, stride: Int, pointer: ByteBuffer) {
-        GL15.glVertexPointer(size, type, stride, pointer)
-    }
-
-    fun glVertexPointer(size: Int, type: Int, stride: Int, pointer: Long) {
-        GL15.glVertexPointer(size, type, stride, pointer)
-    }
-
-    fun glTexCoordPointer(size: Int, type: Int, stride: Int, pointer: ByteBuffer) {
-        GL15.glTexCoordPointer(size, type, stride, pointer)
-    }
-
-    fun glTexCoordPointer(size: Int, type: Int, stride: Int, pointer: Long) {
-        GL15.glTexCoordPointer(size, type, stride, pointer)
-    }
-
-    fun glColorPointer(size: Int, type: Int, stride: Int, pointer: ByteBuffer) {
-        GL15.glColorPointer(size, type, stride, pointer)
-    }
-
-    fun glColorPointer(size: Int, type: Int, stride: Int, pointer: Long) {
-        GL15.glColorPointer(size, type, stride, pointer)
-    }
-
-    fun glNormalPointer(type: Int, stride: Int, pointer: ByteBuffer) {
-        GL15.glNormalPointer(type, stride, pointer)
-    }
-
-    fun glNormalPointer(type: Int, stride: Int, pointer: Long) {
-        GL15.glNormalPointer(type, stride, pointer)
-    }
-
     fun glGenTextures(): Int {
         return GL11.glGenTextures()
     }
@@ -144,18 +89,6 @@ object GlUtils {
 
     fun glClear(mask: Int) {
         GL11.glClear(mask)
-    }
-
-    fun glMatrixMode(mode: Int) {
-        GL11.glMatrixMode(mode)
-    }
-
-    fun glLoadIdentity() {
-        GL11.glLoadIdentity()
-    }
-
-    fun glOrtho(left: Double, right: Double, top: Double, bottom: Double, near: Double, far: Double) {
-        GL11.glOrtho(left, right, top, bottom, near, far)
     }
 
     fun glViewport(x: Int, y: Int, width: Int, height: Int) {
@@ -231,5 +164,10 @@ object GlUtils {
 
     fun glDisableVertexAttribArray(index: Int) {
         GL30.glDisableVertexAttribArray(index)
+    }
+
+    fun glEnableCullface() {
+        GL11.glEnable(GL11.GL_CULL_FACE)
+        GL11.glCullFace(GL11.GL_BACK)
     }
 }

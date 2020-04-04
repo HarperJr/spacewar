@@ -21,7 +21,7 @@ class FontRenderer(private val textureManager: TextureManager) {
             return
         this.fontTexture = textureManager.provideTexture(fontTextureRes)
 
-        val fontImage = ImageIO.read(fileProvider.provideFile(fontTextureRes))
+        val fontImage = ImageIO.read(fileProvider.provideFile("textures/$fontTextureRes"))
         val fontWidth = fontImage.width
         val fontHeight = fontImage.height
         val fontPixels = IntArray(fontWidth * fontHeight)
@@ -70,11 +70,8 @@ class FontRenderer(private val textureManager: TextureManager) {
         GlUtils.glEnable(GlUtils.BLEND)
         GlUtils.glBlendFuncDefault()
 
-        GlUtils.glColor(color)
-
         GlUtils.glBindTexture(fontTexture!!.glTexture)
-        val tessellator = Tessellator.instance
-        tessellator.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX) {
+        Tessellator.instance.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX_COLOR) {
             var charXOffset = x
             text.forEach { char ->
                 val charIndex = chars.indexOf(char)
@@ -87,7 +84,7 @@ class FontRenderer(private val textureManager: TextureManager) {
                     Y_CHAR_INDEX -> charYOffset += 2f * scaleFactor
                 }
 
-                drawChar(this, charXOffset, charYOffset, scaleFactor, charIndex)
+                drawChar(this, charXOffset, charYOffset, scaleFactor, charIndex, color)
                 charXOffset += charWidthList[charIndex] * scaleFactor
             }
         }
@@ -103,7 +100,7 @@ class FontRenderer(private val textureManager: TextureManager) {
         drawText(text, x - textWidth / 2f, y - 4f * scaleFactor, color, scaleFactor)
     }
 
-    private fun drawChar(bufferBuilder: BufferBuilder, x: Float, y: Float, scaleFactor: Float, charIndex: Int) {
+    private fun drawChar(bufferBuilder: BufferBuilder, x: Float, y: Float, scaleFactor: Float, charIndex: Int, color: Long) {
         val charWidth = charWidthList[charIndex]
         val charHeight = 8f
         val charWidthScaled = charWidth * scaleFactor
@@ -115,18 +112,22 @@ class FontRenderer(private val textureManager: TextureManager) {
             // top left
             pos(x, y + charHeightScaled, 0f)
                 .tex(charOffsetX / fontWidth.toFloat(), (charOffsetY + charHeight) / fontHeight.toFloat())
+                .color(color)
                 .completeVertex()
             // top right
             pos(x + charWidthScaled, y + charHeightScaled, 0f)
                 .tex((charOffsetX + charWidth) / fontWidth.toFloat(), (charOffsetY + charHeight) / fontHeight.toFloat())
+                .color(color)
                 .completeVertex()
             // bottom right
             pos(x + charWidthScaled, y, 0f)
                 .tex((charOffsetX + charWidth) / fontWidth.toFloat(), charOffsetY / fontHeight.toFloat())
+                .color(color)
                 .completeVertex()
             // bottom left
             pos(x, y, 0f)
                 .tex(charOffsetX / fontWidth.toFloat(), charOffsetY / fontHeight.toFloat())
+                .color(color)
                 .completeVertex()
         }
     }

@@ -1,6 +1,7 @@
 package com.harper.spacewar.main.gl.shader.impl
 
 import com.harper.spacewar.main.gl.shader.Shader
+import org.joml.Vector4f
 
 class SpriteShader(shaderProgram: Int) : Shader(shaderProgram) {
     override val uniforms: List<String> = listOf(U_TEXTURE)

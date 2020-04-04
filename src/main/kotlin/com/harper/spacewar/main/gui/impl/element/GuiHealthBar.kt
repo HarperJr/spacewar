@@ -1,5 +1,6 @@
 package com.harper.spacewar.main.gui.impl.element
 
+import com.harper.spacewar.Color
 import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.texture.Texture
 import com.harper.spacewar.main.gui.Gui
@@ -69,7 +70,8 @@ class GuiHealthBar(
             min(1f, value * 2f) * texture.width / 2f,
             tileHeight,
             0f,
-            0f
+            0f,
+            Color.GREEN
         )
 
         gui.drawTexturedRect(
@@ -79,7 +81,8 @@ class GuiHealthBar(
             max(0f, (value - 0.5f) * 2f) * texture.width / 2f,
             tileHeight,
             0f,
-            tileHeight
+            tileHeight,
+            Color.GREEN
         )
     }
 }

@@ -1,6 +1,5 @@
 package com.harper.spacewar.utils
 
-import org.joml.Matrix4f
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import kotlin.math.*
@@ -12,7 +11,7 @@ fun vecFromEuler(yaw: Float, pitch: Float): Vector3f {
     val f1 = sin(toRadians(-yaw) - PI)
     val f2 = -cos(toRadians(-pitch))
     val f3 = sin(toRadians(-pitch))
-    return Vector3f(f1 * f2, f3, f * f2)
+    return Vector3f(f1 * f2, f3, f * f2).normalize()
 }
 
 fun quatFromEuler(yaw: Float, pitch: Float, roll: Float = 0f): Quaternionf {
@@ -31,32 +30,27 @@ fun quatFromEuler(yaw: Float, pitch: Float, roll: Float = 0f): Quaternionf {
     )
 }
 
-fun eulerFromQuat(quaternion: Quaternionf): Triple<Float, Float, Float> {
-    // roll (x-axis lookVec)
-    val sinRcosP = 2f * (quaternion.w * quaternion.x + quaternion.y * quaternion.z)
-    val cosRcosP = 1f - 2f * (quaternion.x * quaternion.x + quaternion.y * quaternion.y)
-    val roll = atan2(sinRcosP, cosRcosP)
-
-    // pitch (y-axis lookVec)
-    val sinP = 2f * (quaternion.w * quaternion.y - quaternion.z * quaternion.x)
-    val pitch = if (abs(sinP) >= 1f) {
-        Math.PI.toFloat() / 2f * sign(sinP) // use 90 degrees if out of range
-    } else asin(sinP)
-
-    // yaw (z-axis lookVec)
-    val sinYcosP = 2f * (quaternion.w * quaternion.z + quaternion.x * quaternion.y)
-    val cosYcosP = 1f - 2f * (quaternion.y * quaternion.y + quaternion.z * quaternion.z)
-    val yaw = atan2(sinYcosP, cosYcosP)
-
-    return Triple(yaw, pitch, roll)
-}
-
 fun lookRotation(lookAt: Vector3f, up: Vector3f): Quaternionf {
-    val rotationMatrix = Matrix4f()
-    val position = Vector3f(-lookAt.x, -lookAt.y, -lookAt.z)
-    val upVector = orthoNormalize(up, lookAt)
-    rotationMatrix.lookAt(position, lookAt, upVector)
-    return rotationMatrix.getNormalizedRotation(Quaternionf())
+    val forward = Vector3f(0f, 0f, 1f)
+    val dot = forward.dot(lookAt)
+
+    if (abs(dot + 1.0f) < 0.000001f)
+        return Quaternionf(up.x, up.y, up.z, PI)
+
+    if (abs(dot - 1.0f) < 0.000001f)
+        return Quaternionf(0f, 0f, 0f, 1f)
+
+    val rotAngle = acos(dot)
+    val rotAxis = forward.cross(lookAt, Vector3f()).normalize()
+
+    val halfAngle = rotAngle * 0.5f
+    val s = sin(halfAngle)
+    return Quaternionf(
+        rotAxis.x * s,
+        rotAxis.y * s,
+        rotAxis.z * s,
+        cos(halfAngle)
+    )
 }
 
 fun toRadians(deg: Float): Float {

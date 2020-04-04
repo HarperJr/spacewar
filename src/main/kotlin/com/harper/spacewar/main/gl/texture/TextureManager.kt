@@ -19,7 +19,7 @@ class TextureManager {
     fun provideTexture(textureName: String, type: Texture.Type = Texture.Type.AMBIENT): Texture {
         return textures[textureName] ?: kotlin.runCatching {
             createTexture(
-                textureImage = ImageIO.read(fileProvider.provideFile(textureName)),
+                textureImage = ImageIO.read(fileProvider.provideFile(TEXTURES_DIR + textureName)),
                 texture = GlUtils.glGenTextures(),
                 type = type
             ).also { this@TextureManager.textures[textureName] = it }
@@ -48,9 +48,9 @@ class TextureManager {
             val pixelsByteBuffer = BufferUtils.createByteBuffer(pixelsArray.size * BYTES_PER_PIXEL_RGBA)
             pixelsArray.forEachIndexed { i, pixel ->
                 with(pixelsByteBuffer) {
-                    put(i * BYTES_PER_PIXEL_RGBA + 0, (pixel shr 0 and 255).toByte())
+                    put(i * BYTES_PER_PIXEL_RGBA + 0, (pixel shr 16 and 255).toByte())
                     put(i * BYTES_PER_PIXEL_RGBA + 1, (pixel shr 8 and 255).toByte())
-                    put(i * BYTES_PER_PIXEL_RGBA + 2, (pixel shr 16 and 255).toByte())
+                    put(i * BYTES_PER_PIXEL_RGBA + 2, (pixel shr 0 and 255).toByte())
                     put(i * BYTES_PER_PIXEL_RGBA + 3, (pixel shr 24 and 255).toByte())
                 }
             }
@@ -80,5 +80,6 @@ class TextureManager {
 
     companion object {
         private const val BYTES_PER_PIXEL_RGBA = 4
+        private const val TEXTURES_DIR = "textures/"
     }
 }

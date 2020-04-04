@@ -1,0 +1,98 @@
+@startuml
+
+class Spacewar {
+      textureManager: TextureManager
+      fontRenderer: FontRenderer
+      resourceRegistry: ResourceRegistry
+      renderManager: RenderManager
+      scaledResolution: ScaledResolution
+}
+
+abstract class Entity {
+    id: Int
+    position: Vector3f
+    rotation: Quaternionf
+
+    create(id: Int, x: Float, y: Float, z: Float)
+    update(time: Float)
+    move(x: Float, y: Float, z: Float)
+}
+
+Entity <|- EntityLiving
+
+abstract class EntityLiving {
+    movementSpeed: Float
+    rotationSpeed: Float
+    isAttacking: Boolean
+    isDead: Boolean
+    lookAt: Vector3f
+    health: Float
+    killedBy: EntityLiving
+    healthPercent: Float
+
+    addHealth(health: Float): Boolean
+    receiveDamageFromEntity(entity: EntityLiving, source: DamageSource)
+    lookAt(time: Float, lookVec: Vector3f)
+}
+
+EntityLiving <|- EntitySpaceship
+
+class EntitySpaceship {
+    makeShot()
+}
+
+EntityLiving <|- EntityHeal
+class EntityHeal
+
+EntitySpaceship <|- EntityPlayer
+EntitySpaceship <|- EntityEnemy
+class EntityPlayer
+class EntityEnemy
+
+abstract class Scene {
+    scaledResolution: ScaledResolution
+    renderManager: RenderManager
+    logger = Logger.getLogger<SceneMainMenu>()
+    needsUpdates: Boolean = true
+    entities: MutableMap<Int, Entity>
+    entitiesToBeAdded: MutableMap<Int, Entity>
+    entitiesToBeRemoved: MutableMap<Int, Entity>
+    guiContainer: GuiContainer
+    needsToUpdateGui: Boolean
+    nextEntityId: Int
+
+    abstract camera: Camera
+
+    abstract createScene()
+    update(time: Float)
+    destroy()
+    addEntity(entity: Entity, x: Float, y: Float, z: Float): Entity
+    removeEntity(entity: Entity)
+    getEntities()
+    getEntitiesCollidedExcept(entity: Entity, exceptEntities: List<Entity>): List<Entity>
+    setGui(gui: GuiContainer)
+    requestGuiUpdate()
+    renderGui(time: Float)
+}
+
+Scene <|- SceneMainMenu
+Scene <|- SceneInGame
+
+class SceneMainMenu
+class SceneInGame {
+private val guiInGame: GuiInGame
+    guiInGameMenu: GuiInGameMenu
+    guiPlayerKilled: GuiPlayerKilled
+    isPaused: Boolean
+
+    onPlayerWasKilled()
+    onEntityWasKilled(entity: EntityLiving)
+    spawnEnemy()
+    spawnHeal()
+    updateCameraControls(time: Float)
+    switchPausedState()
+}
+
+
+
+@enduml

@@ -13,17 +13,16 @@ class SceneMainMenu(spacewar: Spacewar, private val spacewarController: Spacewar
     private val guiMainMenu: GuiContainer = GuiMainMenu(this, spacewar.fontRenderer, spacewar.textureManager)
 
     private lateinit var spaceshipEntity: Entity
-    private var rotYaw: Float = 0f
-    private var prevYaw: Float = 0f
 
     override fun createScene() {
         this.spaceshipEntity = addEntity(EntitySpaceshipStatic(this), 0f, 0f, 0f)
         this.camera.apply {
             val bounds = this@SceneMainMenu.spaceshipEntity.getBounds()
+            setRotation(0f, -30f)
             setPosition(
-                (bounds.minX + bounds.maxX) / 2f,
-                (bounds.minY + bounds.maxY) / 2f + (bounds.maxY - bounds.minY) * 1.2f,
-                (bounds.minZ + bounds.maxZ) / 2f - (bounds.maxZ - bounds.minZ) * 1.2f
+                spaceshipEntity.center.x,
+                spaceshipEntity.center.y - (bounds.maxY - bounds.minY) * 0.15f,
+                spaceshipEntity.center.y - (bounds.maxZ - bounds.minZ) * 1.5f
             )
         }
 
@@ -31,28 +30,15 @@ class SceneMainMenu(spacewar: Spacewar, private val spacewarController: Spacewar
     }
 
     override fun update(time: Float) {
-        this.rotYaw = (this.prevYaw + (this.rotYaw - this.prevYaw) * time * ROTATION_SPEED) % 360f
-        this.spaceshipEntity.rotate(this.rotYaw, 0f)
-
-        this.prevYaw = this.rotYaw
-        this.rotYaw += 0.05f
-
         super.update(time)
+        this.spaceshipEntity.update(time)
     }
 
     fun onEnterBtnClicked() {
         spacewarController.loadInGameScene()
     }
 
-    fun onLoadBtnClicked() {
-        logger.info("Load game btn is clicked")
-    }
-
     fun onLeaveBtnClicked() {
-        logger.info("Leave game btn is clicked")
-    }
-
-    companion object {
-        private const val ROTATION_SPEED = 5f
+        this.spacewar.shutdown()
     }
 }

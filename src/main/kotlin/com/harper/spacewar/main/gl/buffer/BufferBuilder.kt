@@ -71,9 +71,9 @@ class BufferBuilder(capacity: Int) {
             this.vertexCount * this.vertexFormat.nextOffset + this.vertexFormat.getOffset(this.vertexFormatIndex)
         when (vertexFormatElement.format) {
             VertexElement.Format.UBYTE -> {
-                rawByteBuffer.put(index + 0, (color shr 8 and 255).toByte())
+                rawByteBuffer.put(index + 0, (color shr 24 and 255).toByte())
                 rawByteBuffer.put(index + 1, (color shr 16 and 255).toByte())
-                rawByteBuffer.put(index + 2, (color shr 24 and 255).toByte())
+                rawByteBuffer.put(index + 2, (color shr 8 and 255).toByte())
                 rawByteBuffer.put(index + 3, (color and 255).toByte())
             }
             else -> return this
@@ -108,10 +108,10 @@ class BufferBuilder(capacity: Int) {
                 rawByteBuffer.putInt(index + 4, y.toInt())
                 rawByteBuffer.putInt(index + 8, z.toInt())
             }
-            VertexElement.Format.UBYTE, VertexElement.Format.BYTE -> {
-                rawByteBuffer.put(index + 0, (ceil(x * 255).toInt() and 255).toByte())
-                rawByteBuffer.put(index + 1, (ceil(y * 255).toInt() and 255).toByte())
-                rawByteBuffer.put(index + 2, (ceil(z * 255).toInt() and 255).toByte())
+            VertexElement.Format.BYTE -> {
+                rawByteBuffer.put(index + 0, (ceil(x * 127).toInt()).toByte())
+                rawByteBuffer.put(index + 1, (ceil(y * 127).toInt()).toByte())
+                rawByteBuffer.put(index + 2, (ceil(z * 127).toInt()).toByte())
             }
             else -> return this
         }

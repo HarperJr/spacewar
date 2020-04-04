@@ -17,7 +17,7 @@ class Spacewar : Runnable, DisplayListener {
     val textureManager: TextureManager = TextureManager()
     val fontRenderer: FontRenderer = FontRenderer(textureManager)
     val resourceRegistry: ResourceRegistry = ResourceRegistry(textureManager)
-    val renderManager: RenderManager = RenderManager(textureManager, resourceRegistry)
+    val renderManager: RenderManager = RenderManager(textureManager, resourceRegistry, fontRenderer)
     val scaledResolution: ScaledResolution
         get() = scaledResolutionProvider.resolution
 
@@ -68,6 +68,7 @@ class Spacewar : Runnable, DisplayListener {
 
     override fun onInitialized() {
         GlUtils.glClearColor(0xa0efefff)
+        //GlUtils.glEnableCullface()
         renderManager.initialize()
         spacewarController.initialize()
     }
@@ -90,6 +91,10 @@ class Spacewar : Runnable, DisplayListener {
 
     override fun onDestroyed() {
         spacewarController.destroy()
+    }
+
+    fun shutdown() {
+        this.isRunning = false
     }
 
     fun setCursorVisible(isVisible: Boolean) {

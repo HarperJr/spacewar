@@ -39,9 +39,7 @@ class SpacewarController(private val spacewar: Spacewar) {
 
         if (!this.sceneIsDirty) {
             currentScene?.update(time)
-        } else {
-            renderStandBy()
-        }
+        } else renderStandBy()
     }
 
     fun destroy() {
@@ -54,6 +52,11 @@ class SpacewarController(private val spacewar: Spacewar) {
 
     fun loadMainMenuScene() {
         setScene(SceneMainMenu(spacewar, this))
+    }
+
+    fun restartScene() {
+        this.currentScene?.destroy()
+        this.sceneIsDirty = true
     }
 
     private fun setScene(newScene: Scene) {

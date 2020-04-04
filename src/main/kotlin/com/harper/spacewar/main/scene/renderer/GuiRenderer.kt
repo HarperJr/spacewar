@@ -31,7 +31,6 @@ class GuiRenderer {
         this.guiShader.use<GuiShader> {
             bindTexture(0)
             bindMatrices(modelMatrix, identityMatrix, projectionMatrix)
-
             guiContainer.render()
         }
     }

@@ -6,15 +6,6 @@ class VertexFormat(vararg vertexElements: VertexElement) {
     val elementCount: Int
         get() = elements.count()
 
-    var texCoordOffset: Int = -1
-        private set
-
-    var colorOffset: Int = -1
-        private set
-
-    var normalOffset: Int = -1
-        private set
-
     var nextOffset = 0
         private set
 
@@ -41,16 +32,10 @@ class VertexFormat(vararg vertexElements: VertexElement) {
         if (element.isPositionElement() && hasPosition()) {
             logger.error(Throwable("This format already has position element"))
         } else {
-            when (element.type) {
-                VertexElement.Type.TEX_2F -> texCoordOffset = nextOffset
-                VertexElement.Type.COLOR_4B -> colorOffset = nextOffset
-                VertexElement.Type.NORMAL_3B -> normalOffset = nextOffset
-                else -> { /** Do nothing, just skip **/ }
-            }
-            elements.add(element)
-            offsets.add(nextOffset)
+            this.elements.add(element)
+            this.offsets.add(this.nextOffset)
 
-            nextOffset += element.usage
+            this.nextOffset += element.usage
         }
     }
 
@@ -63,6 +48,12 @@ class VertexFormat(vararg vertexElements: VertexElement) {
 
         val POSITION_COLOR = VertexFormat(
             VertexElement.POSITION_3F,
+            VertexElement.COLOR_4B
+        )
+
+        val POSITION_TEX_COLOR = VertexFormat(
+            VertexElement.POSITION_3F,
+            VertexElement.TEX_2F,
             VertexElement.COLOR_4B
         )
 

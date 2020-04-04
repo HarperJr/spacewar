@@ -1,10 +1,10 @@
-package com.harper.spacewar.main.sprite.renderer
+package com.harper.spacewar.main.entity.sprite.renderer
 
 import com.harper.spacewar.main.gl.GlUtils
 import com.harper.spacewar.main.gl.shader.impl.SpriteShader
 import com.harper.spacewar.main.gl.texture.Texture
 import com.harper.spacewar.main.scene.Camera
-import com.harper.spacewar.main.sprite.Sprite
+import com.harper.spacewar.main.entity.sprite.Sprite
 import org.joml.Matrix4f
 
 abstract class SpriteRenderer<T : Sprite> {
