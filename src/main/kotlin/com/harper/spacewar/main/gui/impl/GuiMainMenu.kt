@@ -35,7 +35,7 @@ class GuiMainMenu(private val scene: SceneMainMenu, fontRenderer: FontRenderer, 
             ).also { it.onClickListener = onClickListener }
         )
 
-        addGuiElement(GuiLabel(4f, scaledHeight - 12f, "Spacewar v 0.2 alpha", false))
+        addGuiElement(GuiLabel(4f, scaledHeight - 12f, "Spacewar v 0.3.12 alpha", false))
         addGuiElement(GuiLabel(scaledWidth / 2f, 16f, "SPACEWAR THE GAME", true, 0xffffffff, 2f))
     }
 

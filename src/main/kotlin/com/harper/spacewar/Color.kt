@@ -5,4 +5,5 @@ object Color {
     const val GREEN: Long = 0x00ff00ff
     const val RED: Long = 0xff0000ff
     const val YELLOW: Long = 0x00ffffff
+    const val GRAY: Long = 0x888888ff
 }

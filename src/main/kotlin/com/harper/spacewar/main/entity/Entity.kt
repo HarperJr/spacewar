@@ -2,7 +2,6 @@ package com.harper.spacewar.main.entity
 
 import com.harper.spacewar.main.scene.Camera
 import com.harper.spacewar.main.scene.Scene
-import com.harper.spacewar.main.entity.sprite.Sprite
 import com.harper.spacewar.utils.quatFromEuler
 import org.joml.AABBf
 import org.joml.Quaternionf

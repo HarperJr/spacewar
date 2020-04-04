@@ -77,7 +77,7 @@ abstract class Scene(protected val spacewar: Spacewar) {
                     this.removeEntity(entity)
                 } else entity.update(time)
 
-                if (entity is EntityParticle && entity.isTimeLapsed) {
+                if (entity is EntityParticle && entity.isEnded) {
                     this.entitiesToBeRemoved[entity.id] = entity
                 }
             }

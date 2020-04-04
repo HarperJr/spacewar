@@ -9,13 +9,13 @@ import com.harper.spacewar.main.gl.tessellator.Tessellator
 import com.harper.spacewar.main.gl.texture.Texture
 import com.harper.spacewar.main.scene.Camera
 import com.harper.spacewar.main.scene.renderer.RenderManager
-import com.harper.spacewar.main.entity.sprite.Sprite
+import com.harper.spacewar.main.entity.sprite.EntitySprite
 
-class TileSpriteRenderer(renderManager: RenderManager) : SpriteRenderer<Sprite>() {
+class TileSpriteRenderer(renderManager: RenderManager) : SpriteRenderer(renderManager) {
     override val shader: SpriteShader = ShaderProvider.provide(SpriteShaderDefinition)
     override val texture: Texture = renderManager.textureManager.provideTexture("gui/game.png")
 
-    override fun renderSprite(sprite: Sprite, camera: Camera, x: Float, y: Float, z: Float) {
+    override fun renderSprite(sprite: EntitySprite, camera: Camera, x: Float, y: Float, z: Float) {
         val spriteTexWidth = texture.width / 8f
         val spriteTexHeight = texture.height / 8f
         val spriteWidth = sprite.rect.maxX * spriteTexWidth

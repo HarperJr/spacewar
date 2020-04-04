@@ -1,9 +1,6 @@
 package com.harper.spacewar.main.entity.impl
 
 import com.harper.spacewar.main.scene.SceneInGame
-import com.harper.spacewar.main.entity.sprite.Sprite
-import org.joml.AABBf
-import org.joml.Vector3f
 
 class EntityPlayer(sceneInGame: SceneInGame) : EntitySpaceship(sceneInGame, 100f) {
     override val movementSpeed: Float = 0.2f

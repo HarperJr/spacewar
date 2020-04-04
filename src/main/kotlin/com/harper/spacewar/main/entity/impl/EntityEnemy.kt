@@ -2,8 +2,6 @@ package com.harper.spacewar.main.entity.impl
 
 import com.harper.spacewar.main.ai.EnemyAI
 import com.harper.spacewar.main.scene.SceneInGame
-import com.harper.spacewar.main.entity.sprite.Sprite
-import org.joml.AABBf
 
 class EntityEnemy(scene: SceneInGame, maxHealth: Float) : EntitySpaceship(scene, maxHealth) {
     override val movementSpeed: Float = 0.25f

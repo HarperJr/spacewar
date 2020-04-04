@@ -9,6 +9,7 @@ import com.harper.spacewar.main.entity.impl.EntityEnemy
 import com.harper.spacewar.main.entity.impl.EntityHeal
 import com.harper.spacewar.main.entity.impl.EntityMissile
 import com.harper.spacewar.main.entity.impl.EntityPlayer
+import com.harper.spacewar.main.entity.particle.EntityParticleSmoke
 import com.harper.spacewar.main.gui.impl.GuiInGame
 import com.harper.spacewar.main.gui.impl.GuiInGameMenu
 import com.harper.spacewar.main.gui.impl.GuiPlayerKilled
@@ -108,14 +109,28 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
     }
 
     override fun onEntityWasKilled(entity: EntityLiving) {
+        val pos = entity.position
         if (entity is EntityEnemy) {
             if (entity.killedBy is EntityMissile) {
+                addSmokes(pos.x, pos.y, pos.z)
                 val missileProducer = (entity.killedBy as EntityMissile).producerEntity
                 if (missileProducer is EntityPlayer)
                     this.entityPlayerPoints++
             }
 
             this.enemies.remove(entity)
+        }
+    }
+
+    private fun addSmokes(x: Float, y: Float, z: Float) {
+        for (i in 0 until SMOKES_PARTICLE_COUNT) {
+            val particle = EntityParticleSmoke(this)
+            addEntity(
+                particle,
+                x + (0.5f - this.random.nextFloat()) * particle.scale,
+                y + (0.5f - this.random.nextFloat()) * particle.scale,
+                z + (0.5f - this.random.nextFloat()) * particle.scale
+            )
         }
     }
 
@@ -168,7 +183,7 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
     private fun spawnEnemy() {
         val playerPos = this.entityPlayer.position
         val entityEnemy = addEntity(
-            EntityEnemy(this, 10f),
+            EntityEnemy(this, 5f),
             playerPos.x + SPAWN_RADIUS / 2f - random.nextInt(SPAWN_RADIUS),
             playerPos.y + SPAWN_RADIUS / 2f - random.nextInt(SPAWN_RADIUS),
             playerPos.z + SPAWN_RADIUS / 2f - random.nextInt(SPAWN_RADIUS)
@@ -238,8 +253,9 @@ class SceneInGame(spacewar: Spacewar, private val spacewarController: SpacewarCo
         private const val MOUSE_SENSITIVITY = 0.15f
         private const val MAX_ENEMIES_COUNT = 100
         private const val MAX_HEAL_ENTITY_COUNT = 20
-        private const val ENEMY_SPAWN_THRESHOLD_MILLIS = 2000L
+        private const val ENEMY_SPAWN_THRESHOLD_MILLIS = 1000L
         private const val HEAL_SPAWN_THRESHOLD_MILLIS = 10000L
-        private const val SPAWN_RADIUS = 2000
+        private const val SPAWN_RADIUS = 1000
+        private const val SMOKES_PARTICLE_COUNT = 10
     }
 }

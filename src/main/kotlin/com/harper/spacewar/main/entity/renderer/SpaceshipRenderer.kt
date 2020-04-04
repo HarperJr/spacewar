@@ -36,6 +36,8 @@ class SpaceshipRenderer(renderManager: RenderManager) :
     private val modelMatrix: Matrix4f = Matrix4f()
 
     override fun renderEntityShape(entity: Entity, camera: Camera, x: Float, y: Float, z: Float) {
+        GlUtils.glEnable(GlUtils.DEPTH_TEST)
+        GlUtils.glDepthFunc(GlUtils.DEPTH_LESS)
         super.renderEntityShape(entity, camera, x, y, z)
 
         // Render health sprite for leaving spaceships
@@ -51,7 +53,7 @@ class SpaceshipRenderer(renderManager: RenderManager) :
                 GlUtils.glBindTexture(spriteTexture.glTexture)
                 bindTexture(0)
 
-                val spriteScale = 0.1f
+                val spriteScale = 0.05f
                 val spriteWidth = spriteTexture.width / 2f
                 val spriteHeight = spriteTexture.height / 8f
 
@@ -70,12 +72,15 @@ class SpaceshipRenderer(renderManager: RenderManager) :
                 GlUtils.glDisable(GlUtils.TEXTURE_2D)
             }
         }
+
+        GlUtils.glDisable(GlUtils.DEPTH_TEST)
     }
 
     private fun renderHealthBarBackground(spriteWidth: Float, spriteHeight: Float, spriteScale: Float) {
         Tessellator.instance.tessellate(GlUtils.DRAW_MODE_QUADS, VertexFormat.POSITION_TEX) {
             val spriteYa = spriteHeight * 2f
             val spriteXa = 0f
+
             pos(-spriteWidth * spriteScale, spriteHeight / 2f * spriteScale, 0f)
                 .tex(spriteXa, (spriteYa + spriteHeight) / spriteTexture.height).completeVertex()
 
@@ -115,11 +120,11 @@ class SpaceshipRenderer(renderManager: RenderManager) :
                 .color(color).completeVertex()
 
             pos((adjustedSpriteWidthA - spriteWidth) * spriteScale, spriteHeight / 2f * spriteScale, 0f)
-                .tex(spriteWidth / spriteTexture.width, (spriteYa + spriteHeight) / spriteTexture.height)
+                .tex(adjustedSpriteWidthA / spriteTexture.width, (spriteYa + spriteHeight) / spriteTexture.height)
                 .color(color).completeVertex()
 
             pos((adjustedSpriteWidthA - spriteWidth) * spriteScale, -spriteHeight / 2f * spriteScale, 0f)
-                .tex(spriteWidth / spriteTexture.width, spriteYa / spriteTexture.height)
+                .tex(adjustedSpriteWidthA / spriteTexture.width, spriteYa / spriteTexture.height)
                 .color(color).completeVertex()
 
             pos(-spriteWidth * spriteScale, -spriteHeight / 2f * spriteScale, 0f)
@@ -135,11 +140,11 @@ class SpaceshipRenderer(renderManager: RenderManager) :
                 .color(color).completeVertex()
 
             pos(adjustedSpriteWidthB * spriteScale, spriteHeight / 2f * spriteScale, 0f)
-                .tex(spriteWidth / spriteTexture.width, (spriteYb + spriteHeight) / spriteTexture.height)
+                .tex(adjustedSpriteWidthB / spriteTexture.width, (spriteYb + spriteHeight) / spriteTexture.height)
                 .color(color).completeVertex()
 
             pos(adjustedSpriteWidthB * spriteScale, -spriteHeight / 2f * spriteScale, 0f)
-                .tex(spriteWidth / spriteTexture.width, spriteYb / spriteTexture.height)
+                .tex(adjustedSpriteWidthB / spriteTexture.width, spriteYb / spriteTexture.height)
                 .color(color).completeVertex()
 
             pos(0f, -spriteHeight / 2f * spriteScale, 0f)

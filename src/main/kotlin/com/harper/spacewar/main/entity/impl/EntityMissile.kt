@@ -8,7 +8,7 @@ import org.joml.Vector3f
 
 class EntityMissile(private val sceneInGame: Scene, val producerEntity: EntityLiving) :
     EntityLiving(sceneInGame, 1f) {
-    override val movementSpeed: Float = 50f
+    override val movementSpeed: Float = 10f
     override val rotationSpeed: Float = 10f
 
     private val currentTimeMillis: Long
@@ -16,7 +16,7 @@ class EntityMissile(private val sceneInGame: Scene, val producerEntity: EntityLi
     private var createdTimeMillis: Long = currentTimeMillis
 
     init {
-        super.axisAlignedBox = AABBf(0f, 0f, 0f, 0.5f, 0.5f, 0.5f)
+        super.axisAlignedBox = AABBf(0f, 0f, 0f, 0.4f, 0.4f, 0.4f)
     }
 
     override fun create(id: Int, x: Float, y: Float, z: Float) {
@@ -25,9 +25,9 @@ class EntityMissile(private val sceneInGame: Scene, val producerEntity: EntityLi
 
         val rightVec = this.position.sub(this.producerEntity.position, Vector3f())
         super.lookAt.set(
-            producerEntity.lookAt.x * MAX_LIFE_TIME_MILLIS - rightVec.x,
-            producerEntity.lookAt.y * MAX_LIFE_TIME_MILLIS - rightVec.y,
-            producerEntity.lookAt.z * MAX_LIFE_TIME_MILLIS - rightVec.z
+            producerEntity.lookAt.x * MAX_LIFE_TIME_MILLIS / 2f - rightVec.x,
+            producerEntity.lookAt.y * MAX_LIFE_TIME_MILLIS / 2f - rightVec.y,
+            producerEntity.lookAt.z * MAX_LIFE_TIME_MILLIS / 2f - rightVec.z
         )
     }
 

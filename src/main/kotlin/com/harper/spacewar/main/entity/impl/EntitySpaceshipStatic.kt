@@ -2,8 +2,6 @@ package com.harper.spacewar.main.entity.impl
 
 import com.harper.spacewar.main.entity.Entity
 import com.harper.spacewar.main.scene.Scene
-import com.harper.spacewar.main.entity.sprite.Sprite
-import com.harper.spacewar.main.scene.SceneMainMenu
 import org.joml.AABBf
 
 class EntitySpaceshipStatic(scene: Scene) : Entity(scene) {

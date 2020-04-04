@@ -6,7 +6,7 @@ import com.harper.spacewar.utils.lookRotation
 import org.joml.Rectanglef
 import org.joml.Vector3f
 
-class Sprite(scene: Scene, val rect: Rectanglef) : Entity(scene) {
+class EntitySprite(scene: Scene, val rect: Rectanglef) : Entity(scene) {
     private val lookAt: Vector3f = Vector3f()
 
     override fun update(time: Float) {
