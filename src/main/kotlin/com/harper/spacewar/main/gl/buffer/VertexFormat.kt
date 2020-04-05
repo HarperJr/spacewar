@@ -6,6 +6,12 @@ class VertexFormat(vararg vertexElements: VertexElement) {
     val elementCount: Int
         get() = elements.count()
 
+    val hasTextures: Boolean
+        get() = this.elements.find { it.type == VertexElement.Type.TEX_2F } != null
+
+    val hasNormals: Boolean
+        get() = this.elements.find { it.type == VertexElement.Type.NORMAL_3B } != null
+
     var nextOffset = 0
         private set
 

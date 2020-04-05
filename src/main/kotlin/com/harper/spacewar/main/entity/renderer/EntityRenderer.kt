@@ -35,20 +35,20 @@ abstract class EntityRenderer<T : Entity>(private val renderManager: RenderManag
             bindColor(0xff0000ff)
             bindMatrices(identityMatrix, camera.view, camera.projection)
 
-            //drawAxisAlignedBox(entity)
+//            drawAxisAlignedBox(entity)
 
-            if (entity is EntityLiving) {
-                val center = entity.center
-                val lookAt = entity.lookAt
-                Tessellator.instance.tessellate(GlUtils.DRAW_MODE_LINES, VertexFormat.POSITION) {
-                    pos(center.x, center.y, center.z).completeVertex()
-                    pos(
-                        center.x + lookAt.x * 20f,
-                        center.y + lookAt.y * 20f,
-                        center.z + lookAt.z * 20f
-                    ).completeVertex()
-                }
-            }
+//            if (entity is EntityLiving) {
+//                val center = entity.center
+//                val lookAt = entity.lookAt
+//                Tessellator.instance.tessellate(GlUtils.DRAW_MODE_LINES, VertexFormat.POSITION) {
+//                    pos(center.x, center.y, center.z).completeVertex()
+//                    pos(
+//                        center.x + lookAt.x * 20f,
+//                        center.y + lookAt.y * 20f,
+//                        center.z + lookAt.z * 20f
+//                    ).completeVertex()
+//                }
+//            }
         }
 
         GlUtils.glDisable(GlUtils.DEPTH_TEST)
